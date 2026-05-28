@@ -1,13 +1,96 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "anthropic/claude-sonnet-4-5",
-  "small_model": "anthropic/claude-haiku-4-5",
+  "small_model": "local/local-model",
   "shell": "pwsh",
+  "provider": {
+    "local": {
+      "options": {
+        "baseURL": "http://192.168.1.39:8080/v1"
+      },
+      "models": {
+        "local-model": {
+          "name": "Local: Gemma 4 26B"
+        }
+      }
+    }
+  },
   "agent": {
+    "build": {
+      "description": "Main development agent with full tool access",
+      "model": "anthropic/claude-sonnet-4-5"
+    },
+    "plan": {
+      "description": "Planning agent - analyzes and suggests without making changes",
+      "model": "opencode/big-pickle",
+      "permission": {
+        "edit": "ask",
+        "bash": "ask"
+      }
+    },
+    "general": {
+      "description": "General-purpose agent for multi-step tasks",
+      "mode": "subagent",
+      "model": "local/local-model"
+    },
+    "explore": {
+      "description": "Fast exploration agent - read-only code analysis",
+      "mode": "subagent",
+      "model": "local/local-model",
+      "tools": {
+        "read": true,
+        "grep": true,
+        "glob": true
+      }
+    },
+    "code-reviewer": {
+      "description": "Code review agent - analyzes code quality and suggests improvements",
+      "mode": "subagent",
+      "model": "opencode/big-pickle",
+      "tools": {
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "edit": false,
+        "write": false
+      },
+      "permission": {
+        "edit": "deny",
+        "write": "deny",
+        "bash": "allow"
+      }
+    },
+    "docs-writer": {
+      "description": "Documentation writer agent - generates and maintains docs",
+      "mode": "subagent",
+      "model": "local/local-model",
+      "tools": {
+        "read": true,
+        "write": true,
+        "edit": true
+      }
+    },
+    "security-auditor": {
+      "description": "Security audit agent - finds vulnerabilities and security issues",
+      "mode": "subagent",
+      "model": "opencode/big-pickle",
+      "tools": {
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "edit": false,
+        "write": false
+      },
+      "permission": {
+        "edit": "deny",
+        "write": "deny",
+        "bash": "allow"
+      }
+    },
     "java-expert": {
       "description": "Java/Spring expert with Maven build knowledge",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-5",
+      "model": "opencode/big-pickle",
       "temperature": 0.1,
       "permission": {
         "edit": "allow",
@@ -46,8 +129,7 @@
     }
   },
   "permission": {
-    "bash": "ask",
-    "edit": "ask"
-  },
-  "instructions": "opencode-config/.opencode/instructions/brief.md"
+    "edit": "ask",
+    "bash": "ask"
+  }
 }
