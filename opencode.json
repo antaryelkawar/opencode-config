@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-4-5",
+  "model": "opencode/big-pickle",
   "small_model": "opencode/gpt-5-nano",
   "shell": "pwsh",
   "provider": {
@@ -18,7 +18,7 @@
   "agent": {
     "build": {
       "description": "Main development agent with full tool access",
-      "model": "anthropic/claude-sonnet-4-5"
+      "model": "opencode/big-pickle"
     },
     "plan": {
       "description": "Planning agent - analyzes and suggests without making changes",
