@@ -1,0 +1,53 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",
+  "shell": "pwsh",
+  "agent": {
+    "java-expert": {
+      "description": "Java/Spring expert with Maven build knowledge",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "websearch": "deny",
+        "webfetch": "deny",
+        "task": {
+          "*": "deny",
+          "explore": "allow",
+          "general": "allow"
+        }
+      }
+    }
+  },
+  "default_agent": "plan",
+  "command": {
+    "build": {
+      "template": "mvn clean install -DskipTests",
+      "description": "Build the entire project"
+    },
+    "build-module": {
+      "template": "mvn clean install -pl {module} -DskipTests",
+      "description": "Build a specific module"
+    },
+    "test": {
+      "template": "mvn test",
+      "description": "Run all tests"
+    },
+    "test-module": {
+      "template": "mvn test -pl {module}",
+      "description": "Run tests for a specific module"
+    }
+  },
+  "permission": {
+    "bash": "ask",
+    "edit": "ask"
+  },
+  "instructions": "opencode-config/.opencode/instructions/brief.md"
+}
