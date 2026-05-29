@@ -11,31 +11,22 @@
       },
       "models": {
         "primary": {
-          "name": "Smart Router (auto-tier)"
+          "name": "Premium (best available)"
         },
         "premium": {
-          "name": "Premium (Gemini + NVIDIA)"
+          "name": "Gemma 4 31B"
         },
         "balanced": {
-          "name": "Balanced (Gemini + NVIDIA)"
+          "name": "Gemma 4 26B"
         },
         "fast": {
-          "name": "Fast (Gemini + NVIDIA)"
+          "name": "Gemma 4 26B (high rate)"
         },
         "gemini-pool": {
-          "name": "Gemini-only Pool"
-        },
-        "nvidia-pool": {
-          "name": "NVIDIA NIM-only Pool"
+          "name": "All Gemma models"
         },
         "local-model": {
           "name": "Local (llama.cpp)"
-        },
-        "openrouter-free": {
-          "name": "OpenRouter Free"
-        },
-        "smart-router": {
-          "name": "Complexity Router"
         }
       }
     }
