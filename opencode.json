@@ -1,40 +1,43 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "litellm/primary",
-  "small_model": "litellm/fast",
+  "model": "litellm/agentic",
+  "small_model": "litellm/speed",
   "shell": "pwsh",
   "provider": {
     "litellm": {
       "options": {
-        "baseURL": "http://192.168.1.103:4000/v1",
+        "baseURL": "http://192.168.1.103:8787/v1",
         "apiKey": "sk-litellm-master-key"
       },
       "models": {
         "primary": {
-          "name": "Premium (best available)"
+          "name": "Best Quality"
         },
-        "premium": {
-          "name": "Gemma 4 31B"
+        "reasoning": {
+          "name": "Reasoning"
         },
-        "balanced": {
-          "name": "Gemma 4 26B"
+        "agentic": {
+          "name": "Agentic"
         },
-        "fast": {
-          "name": "Gemma 4 26B (high rate)"
+        "generalist": {
+          "name": "Generalist"
         },
-        "gemini-pool": {
-          "name": "All Gemma models"
+        "speed": {
+          "name": "Speed"
         },
-        "local-model": {
-          "name": "Local (llama.cpp)"
+        "local": {
+          "name": "Local"
         }
       }
     }
   },
+  "plugin": [
+    "opencode-plugin-openspec"
+  ],
   "mcp": {
     "idea": {
       "type": "remote",
-      "url": "http://127.0.0.1:64342/sse",
+      "url": "http://127.0.0.1:64564/sse",
       "headers": {},
       "enabled": true
     }
@@ -42,11 +45,11 @@
   "agent": {
     "build": {
       "description": "Main development agent with full tool access",
-      "model": "litellm/premium"
+      "model": "litellm/agentic"
     },
     "plan": {
       "description": "Planning agent - analyzes and suggests without making changes",
-      "model": "litellm/primary",
+"model": "litellm/generalist",
       "permission": {
         "edit": "ask",
         "bash": "ask"
@@ -55,12 +58,12 @@
     "general": {
       "description": "General-purpose agent for multi-step tasks",
       "mode": "subagent",
-      "model": "litellm/balanced"
+      "model": "litellm/generalist"
     },
     "explore": {
       "description": "Fast exploration agent - read-only code analysis",
       "mode": "subagent",
-      "model": "litellm/fast",
+      "model": "litellm/speed",
       "tools": {
         "read": true,
         "grep": true,
@@ -70,7 +73,7 @@
     "code-reviewer": {
       "description": "Code review agent - analyzes code quality and suggests improvements",
       "mode": "subagent",
-      "model": "litellm/premium",
+      "model": "litellm/agentic",
       "tools": {
         "read": true,
         "grep": true,
@@ -87,7 +90,7 @@
     "docs-writer": {
       "description": "Documentation writer agent - generates and maintains docs",
       "mode": "subagent",
-      "model": "litellm/balanced",
+      "model": "litellm/generalist",
       "tools": {
         "read": true,
         "write": true,
@@ -97,7 +100,7 @@
     "security-auditor": {
       "description": "Security audit agent - finds vulnerabilities and security issues",
       "mode": "subagent",
-      "model": "litellm/premium",
+      "model": "litellm/agentic",
       "tools": {
         "read": true,
         "grep": true,
@@ -111,11 +114,97 @@
         "bash": "allow"
       }
     },
-    "java-expert": {
-      "description": "Java/Spring expert with Maven build knowledge",
+    "architect": {
+      "description": "System architect - designs boundaries, interfaces, and codebase structure",
       "mode": "subagent",
-      "model": "litellm/premium",
-      "temperature": 0.1,
+      "model": "litellm/reasoning",
+      "prompt": "You are the Architect. You design system boundaries, interface contracts, and codebase structure. Prioritize maintainability, scalability, and the Single Responsibility Principle. When designing interfaces, follow the patterns in `.agents/skills/design-an-interface/`. When improving architecture, reference `.agents/skills/improve-codebase-architecture/`.",
+      "permission": {
+        "edit": "ask",
+        "bash": "allow",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "debugger": {
+      "description": "Root cause analyst - isolates and fixes bugs",
+      "mode": "subagent",
+      "model": "litellm/agentic",
+      "prompt": "You are the Debugger. Your goal is to find the root cause of bugs and fix them. Use a scientific approach: observe, hypothesize, test, and verify. Always use the `.agents/skills/diagnose/` workflow to systematically isolate the issue. Ensure the fix doesn't introduce regressions.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "qa-engineer": {
+      "description": "QA engineer - ensures quality via comprehensive test suites",
+      "mode": "subagent",
+      "model": "litellm/agentic",
+      "prompt": "You are the QA Engineer. You ensure software quality by designing and executing comprehensive test suites. Focus on edge cases, integration points, and performance. Utilize the `.agents/skills/qa/` skill to structure your testing strategy. Your definition of done is 100% pass rate on all relevant tests with high coverage.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "db-expert": {
+      "description": "Database expert - manages schemas and query optimization",
+      "mode": "subagent",
+      "model": "litellm/agentic",
+      "prompt": "You are the DB Expert. You specialize in data modeling, query optimization, and database migrations. Ensure data integrity and performance. When modifying schemas, provide the migration script and verify it against the current state.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "devops": {
+      "description": "DevOps engineer - manages CI/CD and infrastructure",
+      "mode": "subagent",
+      "model": "litellm/generalist",
+      "prompt": "You are the DevOps Engineer. You manage CI/CD pipelines, containerization, and infrastructure as code. Ensure the build and deployment process is robust and automated. Reference `.agents/skills/setup-pre-commit/` for git hook configurations.",
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "researcher": {
+      "description": "Technical researcher - analyzes docs and feasibility",
+      "mode": "subagent",
+      "model": "litellm/speed",
+      "prompt": "You are the Researcher. You quickly analyze documentation, libraries, and existing code to provide technical summaries and feasibility reports. Focus on accuracy and brevity. Use `.agents/skills/zoom-out/` to provide high-level overviews of complex systems.",
+      "permission": {
+        "edit": "deny",
+        "write": "deny",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "websearch": "allow",
+        "webfetch": "allow"
+      }
+    },
+    "impl-worker": {
+      "description": "Implementation subagent - builds features guided by TDD",
+      "mode": "subagent",
+      "model": "litellm/agentic",
+      "temperature": 1.2,
+      "prompt": "You are impl-worker — an implementation subagent. You write production code and tests using TDD. All tests must pass before you finish. Never leave broken tests, error-level log output, or TODO/stub implementations. If you encounter a problem you cannot solve, report it clearly and stop rather than guessing.",
       "permission": {
         "edit": "allow",
         "bash": "allow",
@@ -131,6 +220,12 @@
           "general": "allow"
         }
       }
+    },
+    "autopilot": {
+      "description": "Orchestrator agent - delegates tasks to specialized subagents and ensures completion",
+      "model": "litellm/generalist",
+      "color": "#00BFFF",
+      "prompt": "CRITICAL RULE — ABSOLUTE REQUIREMENT: You MUST read every markdown file in `.opencode/autopilot/` on EVERY activation without exception. This is non-negotiable. You are Autopilot — an orchestrator agent. Load and follow all markdown files in `.opencode/autopilot/` for your complete instructions: identity, workflow, delegation rules, and guardrails. If you do any work before reading those files, you are in violation. You NEVER implement code yourself. Delegation is your only job. Failure to follow these rules is a system-level error."
     }
   },
   "default_agent": "plan",

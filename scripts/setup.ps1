@@ -26,7 +26,10 @@ $RepoRoot = Resolve-Path "$ScriptDir\..\.."
 
 $Items = @(
     @{ Target = "$ConfigRoot\opencode.json"; Link = "$RepoRoot\opencode.json"; Type = "file" }
-    @{ Target = "$ConfigRoot\.opencode";    Link = "$RepoRoot\.opencode";    Type = "dir"  }
+    @{ Target = "$ConfigRoot\AGENTS.md";     Link = "$RepoRoot\AGENTS.md";     Type = "file" }
+    @{ Target = "$ConfigRoot\.opencode";     Link = "$RepoRoot\.opencode";     Type = "dir"  }
+    @{ Target = "$ConfigRoot\openspec";      Link = "$RepoRoot\openspec";      Type = "dir"  }
+    @{ Target = "$ConfigRoot\docs\agents";   Link = "$RepoRoot\docs\agents";   Type = "dir"  }
 )
 
 # ---- Remove ----
@@ -128,6 +131,29 @@ foreach ($item in $Items) {
     } catch {
         Write-Warning "[!!] Failed $type for: $($item.Link) -- $($_.Exception.Message)"
     }
+}
+
+# ---- Create agent config in parent repo ----
+$markerFile = "$RepoRoot\PARENT_REPO_URL"
+if (Test-Path $markerFile) {
+    Write-Host "[--] PARENT_REPO_URL marker already exists: $markerFile"
+} else {
+    $remote = git -C "$RepoRoot" remote get-url origin 2>$null
+    if ($remote) {
+        $remote -match 'github\.com[:/](.+)\.git$' | Out-Null
+        $Matches[1] | Set-Content $markerFile
+        Write-Host "[OK] Created PARENT_REPO_URL marker: $markerFile"
+    } else {
+        Write-Warning "[!!] Could not determine git remote URL for parent repo"
+    }
+}
+
+$scratchDir = "$RepoRoot\.scratch"
+if (Test-Path $scratchDir) {
+    Write-Host "[--] .scratch directory already exists: $scratchDir"
+} else {
+    New-Item -ItemType Directory -Path $scratchDir -Force | Out-Null
+    Write-Host "[OK] Created .scratch directory: $scratchDir"
 }
 
 # ---- Summary ----
