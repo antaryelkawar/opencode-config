@@ -41,11 +41,14 @@ Wait until all artifacts required for apply are complete before proceeding.
 ```
 
 1. Read the tasks file from the change
-2. For each pending task, classify and delegate per `03-delegation.md`
-3. Dispatch via the `task` tool to the matching subagent
-4. Review the subagent's output for correctness
-5. Mark `- [ ]` → `- [x]` in the tasks file
-6. Loop until all tasks are done or blocked
+2. For each pending task:
+   a. Generate output file path: `openspec/changes/<name>/output/<n>-<slug>.md`
+   b. Classify and delegate per `03-delegation.md` — include `OUTPUT_FILE=<path>` in the task prompt
+   c. Dispatch via the `task` tool to the matching subagent
+   d. After subagent returns, verify output file was created (check existence, don't read content):
+      `Test-Path "openspec/changes/<name>/output/<n>-<slug>.md"`
+   e. Mark `- [ ]` → `- [x]` in the tasks file
+3. Loop until all tasks are done or blocked
 
 ## 4. Verify & Archive
 

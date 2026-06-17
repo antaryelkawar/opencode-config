@@ -3,6 +3,7 @@
   "model": "litellm/agentic",
   "small_model": "litellm/speed",
   "shell": "pwsh",
+  "instructions": ["docs/agents/git-safety.md"],
   "provider": {
     "litellm": {
       "options": {
@@ -58,145 +59,168 @@
     "general": {
       "description": "General-purpose agent for multi-step tasks",
       "mode": "subagent",
-      "model": "litellm/generalist"
+      "model": "litellm/generalist",
+      "prompt": "You are the Generalist — a versatile implementation subagent. Handle tasks outside specialized domains: frontend, UI, CSS, config, scripts, TypeScript, build system, plugins, and everything else.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL deliverables and results to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Work complete — please review output at <path>.\"\n4. Do not return results via task message — write to output file only.",
+      "permission": {
+        "question": "allow"
+      }
     },
     "explore": {
       "description": "Fast exploration agent - read-only code analysis",
       "mode": "subagent",
       "model": "litellm/speed",
+      "prompt": "You are the Explorer — a fast, read-only investigation subagent. Analyze code, trace execution paths, compare implementations, and provide findings. You do NOT make changes.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL findings and analysis to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Investigation complete — please review findings at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "tools": {
         "read": true,
         "grep": true,
-        "glob": true
+        "glob": true,
+        "write": true
+      },
+      "permission": {
+        "question": "allow"
       }
     },
     "code-reviewer": {
       "description": "Code review agent - analyzes code quality and suggests improvements",
       "mode": "subagent",
       "model": "litellm/agentic",
+      "prompt": "You are the Code Reviewer — a quality assurance subagent. Analyze code for potential bugs, style violations, security issues, and architectural concerns. You do NOT make code changes.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL review findings and recommendations to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Review complete — please review findings at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "tools": {
         "read": true,
         "grep": true,
         "glob": true,
         "edit": false,
-        "write": false
+        "write": true
       },
       "permission": {
         "edit": "deny",
-        "write": "deny",
-        "bash": "allow"
+        "write": "allow",
+        "bash": "allow",
+        "question": "allow"
       }
     },
     "docs-writer": {
       "description": "Documentation writer agent - generates and maintains docs",
       "mode": "subagent",
       "model": "litellm/generalist",
+      "prompt": "You are the Docs Writer — a documentation subagent. Write, edit, and maintain documentation: README, guides, API references, wiki pages, and markdown content.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL documentation content and summaries to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Documentation complete — please review output at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "tools": {
         "read": true,
         "write": true,
         "edit": true
+      },
+      "permission": {
+        "question": "allow"
       }
     },
     "security-auditor": {
       "description": "Security audit agent - finds vulnerabilities and security issues",
       "mode": "subagent",
       "model": "litellm/agentic",
+      "prompt": "You are the Security Auditor — a security analysis subagent. Find vulnerabilities, security issues, and compliance problems in code. You do NOT make code changes.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL security findings, severity assessments, and recommendations to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Security audit complete — please review findings at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "tools": {
         "read": true,
         "grep": true,
         "glob": true,
         "edit": false,
-        "write": false
+        "write": true
       },
       "permission": {
         "edit": "deny",
-        "write": "deny",
-        "bash": "allow"
+        "write": "allow",
+        "bash": "allow",
+        "question": "allow"
       }
     },
     "architect": {
       "description": "System architect - designs boundaries, interfaces, and codebase structure",
       "mode": "subagent",
       "model": "litellm/reasoning",
-      "prompt": "You are the Architect. You design system boundaries, interface contracts, and codebase structure. Prioritize maintainability, scalability, and the Single Responsibility Principle. When designing interfaces, follow the patterns in `.agents/skills/design-an-interface/`. When improving architecture, reference `.agents/skills/improve-codebase-architecture/`.",
+      "prompt": "You are the Architect. You design system boundaries, interface contracts, and codebase structure. Prioritize maintainability, scalability, and the Single Responsibility Principle. When designing interfaces, follow the patterns in `.agents/skills/design-an-interface/`. When improving architecture, reference `.agents/skills/improve-codebase-architecture/`.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL design documents and decisions to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Design complete — please review output at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "permission": {
         "edit": "ask",
         "bash": "allow",
         "read": "allow",
         "glob": "allow",
-        "grep": "allow"
+        "grep": "allow",
+        "question": "allow"
       }
     },
     "debugger": {
       "description": "Root cause analyst - isolates and fixes bugs",
       "mode": "subagent",
       "model": "litellm/agentic",
-      "prompt": "You are the Debugger. Your goal is to find the root cause of bugs and fix them. Use a scientific approach: observe, hypothesize, test, and verify. Always use the `.agents/skills/diagnose/` workflow to systematically isolate the issue. Ensure the fix doesn't introduce regressions.",
+      "prompt": "You are the Debugger. Your goal is to find the root cause of bugs and fix them. Use a scientific approach: observe, hypothesize, test, and verify. Always use the `.agents/skills/diagnose/` workflow to systematically isolate the issue. Ensure the fix doesn't introduce regressions.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL findings, root cause analysis, and fixes to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Debug complete — please review output at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "permission": {
         "edit": "allow",
         "bash": "allow",
         "read": "allow",
         "write": "allow",
         "glob": "allow",
-        "grep": "allow"
+        "grep": "allow",
+        "question": "allow"
       }
     },
     "qa-engineer": {
       "description": "QA engineer - ensures quality via comprehensive test suites",
       "mode": "subagent",
       "model": "litellm/agentic",
-      "prompt": "You are the QA Engineer. You ensure software quality by designing and executing comprehensive test suites. Focus on edge cases, integration points, and performance. Utilize the `.agents/skills/qa/` skill to structure your testing strategy. Your definition of done is 100% pass rate on all relevant tests with high coverage.",
+      "prompt": "You are the QA Engineer. You ensure software quality by designing and executing comprehensive test suites. Focus on edge cases, integration points, and performance. Utilize the `.agents/skills/qa/` skill to structure your testing strategy. Your definition of done is 100% pass rate on all relevant tests with high coverage.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL test results, coverage reports, and quality assessments to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Testing complete — please review results at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "permission": {
         "edit": "allow",
         "bash": "allow",
         "read": "allow",
         "write": "allow",
         "glob": "allow",
-        "grep": "allow"
+        "grep": "allow",
+        "question": "allow"
       }
     },
     "db-expert": {
       "description": "Database expert - manages schemas and query optimization",
       "mode": "subagent",
       "model": "litellm/agentic",
-      "prompt": "You are the DB Expert. You specialize in data modeling, query optimization, and database migrations. Ensure data integrity and performance. When modifying schemas, provide the migration script and verify it against the current state.",
+      "prompt": "You are the DB Expert. You specialize in data modeling, query optimization, and database migrations. Ensure data integrity and performance. When modifying schemas, provide the migration script and verify it against the current state.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL schema changes, migration plans, and analysis to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Database work complete — please review output at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "permission": {
         "edit": "allow",
         "bash": "allow",
         "read": "allow",
         "write": "allow",
         "glob": "allow",
-        "grep": "allow"
+        "grep": "allow",
+        "question": "allow"
       }
     },
     "devops": {
       "description": "DevOps engineer - manages CI/CD and infrastructure",
       "mode": "subagent",
       "model": "litellm/generalist",
-      "prompt": "You are the DevOps Engineer. You manage CI/CD pipelines, containerization, and infrastructure as code. Ensure the build and deployment process is robust and automated. Reference `.agents/skills/setup-pre-commit/` for git hook configurations.",
+      "prompt": "You are the DevOps Engineer. You manage CI/CD pipelines, containerization, and infrastructure as code. Ensure the build and deployment process is robust and automated. Reference `.agents/skills/setup-pre-commit/` for git hook configurations.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL configuration changes, pipeline updates, and infrastructure plans to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"DevOps work complete — please review output at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "permission": {
         "edit": "allow",
         "bash": "allow",
         "read": "allow",
         "write": "allow",
         "glob": "allow",
-        "grep": "allow"
+        "grep": "allow",
+        "question": "allow"
       }
     },
     "researcher": {
       "description": "Technical researcher - analyzes docs and feasibility",
       "mode": "subagent",
       "model": "litellm/speed",
-      "prompt": "You are the Researcher. You quickly analyze documentation, libraries, and existing code to provide technical summaries and feasibility reports. Focus on accuracy and brevity. Use `.agents/skills/zoom-out/` to provide high-level overviews of complex systems.",
+      "prompt": "You are the Researcher. You quickly analyze documentation, libraries, and existing code to provide technical summaries and feasibility reports. Focus on accuracy and brevity. Use `.agents/skills/zoom-out/` to provide high-level overviews of complex systems.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL research findings and reports to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Research complete — please review findings at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "permission": {
         "edit": "deny",
-        "write": "deny",
-        "bash": "deny",
+        "write": "allow",
+        "bash": "allow",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
         "websearch": "allow",
-        "webfetch": "allow"
+        "webfetch": "allow",
+        "question": "allow"
       }
     },
     "impl-worker": {
@@ -204,7 +228,7 @@
       "mode": "subagent",
       "model": "litellm/agentic",
       "temperature": 1.2,
-      "prompt": "You are impl-worker — an implementation subagent. You write production code and tests using TDD. All tests must pass before you finish. Never leave broken tests, error-level log output, or TODO/stub implementations. If you encounter a problem you cannot solve, report it clearly and stop rather than guessing.",
+      "prompt": "You are impl-worker — an implementation subagent.\n\n**HARD REQUIREMENT: You MUST use Test-Driven Development (TDD) — red-green-refactor — on every task, without exception.** One test at a time, then the minimal code to pass it. Repeat. No writing implementation before tests. No bulk test writing. This rule is non-negotiable.\n\nAll tests must pass before you finish. Never leave broken tests, error-level log output, or TODO/stub implementations. If you encounter a problem you cannot solve, report it clearly and stop rather than guessing.\n\n=== OUTPUT CONTRACT ===\n1. Your Task prompt will contain `OUTPUT_FILE=<path>`. Write ALL implementation details, code changes, and test results to this file.\n2. Before starting, you MAY ask the user for additional context via the `question` tool.\n3. After completing, ask the user for signoff: \"Implementation complete — please review output at <path>.\"\n4. Do not return results via task message — write to output file only.",
       "permission": {
         "edit": "allow",
         "bash": "allow",
@@ -214,6 +238,7 @@
         "grep": "allow",
         "websearch": "deny",
         "webfetch": "deny",
+        "question": "allow",
         "task": {
           "*": "deny",
           "explore": "allow",
@@ -249,6 +274,21 @@
   },
   "permission": {
     "edit": "ask",
-    "bash": "ask"
+    "question": "allow",
+    "bash": {
+      "git push*": "deny",
+      "git reset*": "deny",
+      "git clean*": "deny",
+      "git branch -D*": "deny",
+      "git merge*": "deny",
+      "git rebase*": "deny",
+      "git checkout .*": "deny",
+      "git checkout --*": "deny",
+      "git restore .*": "deny",
+      "git restore --*": "deny",
+      "git stash drop*": "deny",
+      "git gc*": "deny",
+      "git commit*": "ask"
+    }
   }
 }
