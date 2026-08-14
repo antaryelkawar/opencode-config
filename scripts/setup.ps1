@@ -2,7 +2,7 @@
 .SYNOPSIS
     Sets up opencode config from the opencode-config submodule into the parent repo.
 .DESCRIPTION
-    Creates symlinks/junctions for opencode.json and .opencode/ in the parent repo
+    Creates symlinks/junctions for opencode.jsonc and .opencode/ in the parent repo
     root, pointing at corresponding files inside the opencode-config submodule.
     Falls back to hardlink/junction if symlinks aren't available (non-admin).
     Use -Remove to tear down existing links.
@@ -25,11 +25,10 @@ $ConfigRoot = Resolve-Path "$ScriptDir\.."
 $RepoRoot = Resolve-Path "$ScriptDir\..\.."
 
 $Items = @(
-    @{ Target = "$ConfigRoot\opencode.json"; Link = "$RepoRoot\opencode.json"; Type = "file" }
-    @{ Target = "$ConfigRoot\AGENTS.md";     Link = "$RepoRoot\AGENTS.md";     Type = "file" }
-    @{ Target = "$ConfigRoot\.opencode";     Link = "$RepoRoot\.opencode";     Type = "dir"  }
-    @{ Target = "$ConfigRoot\openspec";      Link = "$RepoRoot\openspec";      Type = "dir"  }
-    @{ Target = "$ConfigRoot\docs\agents";   Link = "$RepoRoot\docs\agents";   Type = "dir"  }
+    @{ Target = "$ConfigRoot\opencode.jsonc"; Link = "$RepoRoot\opencode.jsonc"; Type = "file" }
+    @{ Target = "$ConfigRoot\AGENTS.md";      Link = "$RepoRoot\AGENTS.md";      Type = "file" }
+    @{ Target = "$ConfigRoot\.opencode";      Link = "$RepoRoot\.opencode";      Type = "dir"  }
+    @{ Target = "$ConfigRoot\docs\agents";    Link = "$RepoRoot\docs\agents";    Type = "dir"  }
 )
 
 # ---- Remove ----

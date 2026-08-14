@@ -42,11 +42,13 @@ Wait until all artifacts required for apply are complete before proceeding.
 
 1. Read the tasks file from the change
 2. For each pending task:
-   a. Generate output file path: `openspec/changes/<name>/output/<n>-<slug>.md`
-   b. Classify and delegate per `03-delegation.md` — include `OUTPUT_FILE=<path>` in the task prompt
-   c. Dispatch via the `task` tool to the matching subagent
-   d. After subagent returns, verify output file was created (check existence, don't read content):
-      `Test-Path "openspec/changes/<name>/output/<n>-<slug>.md"`
+    a. Generate output file name: `<n>-<slug>.md`
+    b. Classify task per `03-delegation.md` — implementation tasks go to `impl-worker`
+    c. Dispatch via the `task` tool with `OUTPUT_FILE=<name>` in the prompt (subagent writes to `.tmp/<name>`)
+    d. After subagent returns:
+       - Verify output file was created: `Test-Path ".tmp/<n>-<slug>.md"`
+      - Read the output file content to audit quality
+      - If issues found: fix inline or re-delegate
    e. Mark `- [ ]` → `- [x]` in the tasks file
 3. Loop until all tasks are done or blocked
 

@@ -12,7 +12,7 @@
 
 - ✅ ⚠️ MANDATORY: Read all files in `.opencode/autopilot/` on EVERY activation — this is the FIRST thing you do. Do not touch any tool before reading these files. Failure is a system violation.
 - ✅ Use `openspec CLI` to check status before acting
-- ✅ Generate output file path for each task before delegating (see `03-delegation.md`)
+- ✅ Generate output file name for each task before delegating (subagent writes to `.tmp/`) (see `03-delegation.md`)
 - ✅ Classify every task against `03-delegation.md` before dispatching
 - ✅ Verify output file was created after each task (`Test-Path`) — do NOT read its content
 - ✅ Mark tasks complete in the tasks file: `- [ ]` → `- [x]`

@@ -4,20 +4,32 @@ When implementing tasks during `/opsx:apply`, dispatch each task to the matching
 
 ## Available Subagents
 
-| Subagent | Domain | Model | Access |
-|----------|--------|-------|--------|
-| `impl-worker` | Java/Spring, Maven, backend implementation | agentic | full |
-| `architect` | System design, interfaces, codebase structure | reasoning | ask |
-| `debugger` | Bug fixing, root cause analysis | reasoning | full |
-| `qa-engineer` | Testing, edge cases, quality assurance | agentic | full |
-| `db-expert` | Database, SQL, migrations | agentic | full |
-| `devops` | CI/CD, Docker, infrastructure | generalist | full |
-| `researcher` | Technical research, library analysis | speed | read+write |
-| `docs-writer` | Documentation, README, guides | generalist | write/edit |
-| `code-reviewer` | Code review, quality checks | reasoning | read+write |
-| `security-auditor` | Security audit, vulnerabilities | reasoning | read+write |
-| `explore` | Investigation, codebase analysis | speed | read+write |
-| `general` | Frontend, config, scripts, everything else | generalist | full |
+| Subagent | Domain | Model | Access | Notes |
+|----------|--------|-------|--------|-------|
+| `impl-worker` | Implementation orchestration | reasoning | full | Delegates to impl-worker-cheap, audits results |
+| `impl-worker-cheap` | Single task execution | agentic | full | Hidden — only invoked by impl-worker |
+| `architect` | System design, interfaces, codebase structure | design | ask | |
+| `debugger` | Bug fixing, root cause analysis | agentic | full | |
+| `qa-engineer` | Testing, edge cases, quality assurance | agentic | full | |
+| `db-expert` | Database, SQL, migrations | agentic | full | |
+| `devops` | CI/CD, Docker, infrastructure | generalist | full | |
+| `researcher` | Technical research, library analysis | speed | read+write | |
+| `docs-writer` | Documentation, README, guides | generalist | write/edit | |
+| `code-reviewer` | Code review, quality checks | agentic | read+write | |
+| `security-auditor` | Security audit, vulnerabilities | agentic | read+write | |
+| `explore` | Investigation, codebase analysis | speed | read+write | |
+| `general` | Frontend, config, scripts, everything else | generalist | full | |
+
+## Implementation Tasks — Always Through impl-worker
+
+**All implementation tasks go through `impl-worker`.** The autopilot never calls `impl-worker-cheap` directly.
+
+The flow is:
+```
+autopilot → impl-worker → impl-worker-cheap → code changes
+```
+
+`impl-worker` breaks work into chunks, delegates each to `impl-worker-cheap`, and audits results on return.
 
 ## Task Classification
 
@@ -26,6 +38,7 @@ Match task description keywords to subagent:
 | Keywords | Dispatch to |
 |----------|-------------|
 | `Java`, `Spring`, `Maven`, `backend`, `REST`, `JPA`, `Entity`, `Repository`, `Service`, `Controller`, `pom.xml`, `@Service`, `@Controller`, `@Repository` | `impl-worker` |
+| `implement`, `build`, `create`, `add`, `write code`, `feature`, `refactor` (code changes) | `impl-worker` |
 | `design`, `architecture`, `interface`, `structure`, `system design`, `UML`, `contract` | `architect` |
 | `bug`, `fix`, `regression`, `error`, `crash`, `root cause`, `issue` | `debugger` |
 | `test`, `testing`, `qa`, `edge case`, `integration test`, `coverage`, `spec` (testing) | `qa-engineer` |
@@ -40,29 +53,56 @@ Match task description keywords to subagent:
 
 ## Output File Convention
 
-Every task must include a unique output file path in the prompt. The subagent writes ALL results to this file and asks the user for signoff.
+Every task must include a unique output file **name** in the prompt. All subagents write their output to `.tmp/<name>` at the workspace root (creating `.tmp/` if missing) and ask the user for signoff.
 
-**Path format:** `openspec/changes/<change-name>/output/<task-number>-<kebab-slug>.md`
+**Name format:** `<task-number>-<kebab-slug>.md`
 
-The autopilot generates this path before dispatching. After the subagent returns, verify the file was created:
-```bash
-Test-Path "openspec/changes/<change-name>/output/<task-number>-<kebab-slug>.md"
+The autopilot generates this name before dispatching. After the subagent returns, verify the file was created AND read its content to audit quality:
+```powershell
+Test-Path ".tmp/<task-number>-<kebab-slug>.md"
 ```
 
-**Do NOT read the output file content.** Only verify it exists. The signoff process is the quality gate.
+## Token Optimization — Describe, Don't Code
+
+When delegating to impl-worker, describe WHAT needs to change and WHY — do NOT provide code snippets or exact implementations. This wastes tokens.
+
+**Bad (wastes tokens):**
+```
+Create User entity with this code:
+```java
+@Entity
+@Data
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    ...
+}
+```
+```
+
+**Good (describes the change):**
+```
+Create User entity in src/main/java/.../entity/User.java
+Fields: id, email, name, createdAt
+Use @Entity, @Data, @Table(name="users")
+See openspec/changes/add-auth/specs/ for requirements
+Write tests first, then implementation. All tests must pass.
+```
 
 ## How to Delegate
 
 ```
-Generate output file path first, then use the task tool:
+Generate output file name first, then use the task tool (the subagent writes to `.tmp/<name>`):
   subagent_type: <matching subagent>
   description: "3-5 word summary"
   prompt: |
-    OUTPUT_FILE=openspec/changes/<change-name>/output/<task-number>-<slug>.md
+    OUTPUT_FILE=<task-number>-<slug>.md
 
     Task: <task description>
     Context: <relevant specs, design decisions, file paths>
-    Instructions: <what to do>
+    Instructions: <what to do — describe the change, don't provide code>
 ```
 
 ### Example
@@ -70,24 +110,38 @@ Generate output file path first, then use the task tool:
 ```
 Task: "3.1 Create JPA entity for User"
 
-→ generate: openspec/changes/add-auth/output/1-user-entity.md
+→ generate: 1-user-entity.md
 
 → dispatch to impl-worker:
    subagent_type: "impl-worker"
    description: "Create User entity"
    prompt: |
-     OUTPUT_FILE=openspec/changes/add-auth/output/1-user-entity.md
+      OUTPUT_FILE=1-user-entity.md
 
-     Create User entity in src/main/java/.../entity/User.java
-     Fields: id, email, name, createdAt
-     Use @Entity, @Data, @Table(name="users")
-     See openspec/changes/add-auth/specs/ for requirements
-     Write tests first, then implementation. All tests must pass.
+     Task: Create JPA entity for User
+     Context: This is the core entity for authentication.
+              See openspec/changes/add-auth/specs/ for field requirements.
+     Instructions:
+     - Create User entity in src/main/java/.../entity/User.java
+     - Fields: id, email, name, createdAt
+     - Use @Entity, @Data, @Table(name="users")
+     - Write tests first, then implementation
+     - All tests must pass before you finish
 
-→ impl-worker writes output to file, asks user for signoff
-→ Verify file exists: Test-Path "openspec/changes/add-auth/output/1-user-entity.md"
+→ impl-worker breaks into chunks, delegates to impl-worker-cheap
+→ impl-worker audits output, fixes minor issues, reports back
+→ autopilot verifies .tmp/1-user-entity.md exists, reads content to audit quality
 → Mark task complete
 ```
+
+## Audit Pattern — Read and Verify
+
+After each subagent returns, the autopilot should:
+1. Verify the output file exists: `Test-Path ".tmp/<name>"`
+2. Read the output file content to check quality
+3. If quality is acceptable: mark task complete
+4. If minor issues: fix inline
+5. If major issues: re-delegate to impl-worker with clarification
 
 ## When NOT to Delegate
 

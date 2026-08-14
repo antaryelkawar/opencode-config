@@ -1,3 +1,19 @@
+## Tool limitations
+
+### `glob` ignores dot-prefixed directories
+
+The `glob` tool cannot match patterns starting with a literal dot (e.g., `.opencode/**/*`, `.agents/**/*`). Patterns like `docs/**/*` work fine.
+
+**Workaround:** set the `path` parameter directly to the dot directory, or use `pattern=*` which incidentally recurses into hidden dirs.
+
+```
+# ❌ fails — returns nothing
+glob(pattern=".opencode/skills/**")
+
+# ✅ works
+glob(pattern="**/*", path=".opencode/skills")
+```
+
 ## Agent skills
 
 Skills are loaded from `.agents/skills/` and `.opencode/skills/` in the opencode-config repo. The full skill tree is available to all agents — see `skills-lock.json` at the opencode-config root for the complete inventory.

@@ -6,9 +6,8 @@ CONFIG_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 LINKS=(
-  "$CONFIG_ROOT/opencode.json:$REPO_ROOT/opencode.json"
+  "$CONFIG_ROOT/opencode.jsonc:$REPO_ROOT/opencode.jsonc"
   "$CONFIG_ROOT/.opencode:$REPO_ROOT/.opencode"
-  "$CONFIG_ROOT/openspec:$REPO_ROOT/openspec"
   "$CONFIG_ROOT/docs/agents:$REPO_ROOT/docs/agents"
 )
 
