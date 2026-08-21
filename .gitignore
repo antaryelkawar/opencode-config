@@ -1,0 +1,16 @@
+# Runtime / build output
+.tmp/
+.scratch/
+.idea/
+*.iml
+
+# rtk binary — auto-downloaded by scripts/setup.mjs (do not commit)
+bin/
+
+# IDE / OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Node / bun
+node_modules/

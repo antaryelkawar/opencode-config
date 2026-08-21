@@ -1,6 +1,5 @@
 ---
 description: Create technical specifications with the spec-writer skill
-model: openrouter/free
 ---
 Create a technical specification for the described feature or change. Include:
 - Overview and goals

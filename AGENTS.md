@@ -16,7 +16,7 @@ glob(pattern="**/*", path=".opencode/skills")
 
 ## Agent skills
 
-Skills are loaded from `.agents/skills/` and `.opencode/skills/` in the opencode-config repo. The full skill tree is available to all agents — see `skills-lock.json` at the opencode-config root for the complete inventory.
+Skills are loaded from `.agents/skills/` and `.opencode/skills/` in the opencode-config repo. The GitHub-sourced skills are pinned in `skills-lock.json` at the opencode-config root; the local `.opencode/skills/` directory holds repo-specific skills.
 
 ### Domain docs
 

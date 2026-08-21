@@ -1,6 +1,5 @@
 ---
 description: Generate git commit messages
-model: openrouter/free
 ---
 Analyze the current git changes (staged and unstaged) and generate a conventional commit message.
 

@@ -1,168 +1,38 @@
 <#
 .SYNOPSIS
-    Sets up opencode config from the opencode-config submodule into the parent repo.
+    Cross-platform setup for opencode-config (Windows entry point).
 .DESCRIPTION
-    Creates symlinks/junctions for opencode.jsonc and .opencode/ in the parent repo
-    root, pointing at corresponding files inside the opencode-config submodule.
-    Falls back to hardlink/junction if symlinks aren't available (non-admin).
-    Use -Remove to tear down existing links.
+    Thin wrapper around scripts/setup.mjs. Creates config links in the parent
+    repo and provisions the rtk binary. Requires Node.js.
 .PARAMETER Remove
     Remove existing links instead of creating them.
 .PARAMETER EnvVarOnly
     Don't create filesystem links; just print the OPENCODE_CONFIG_DIR instruction.
+.PARAMETER SkipRtk
+    Create links only, skip the rtk download.
 .EXAMPLE
     .\setup.ps1
     .\setup.ps1 -Remove
     .\setup.ps1 -EnvVarOnly
+    .\setup.ps1 -SkipRtk
 #>
-
-param([switch]$Remove, [switch]$EnvVarOnly)
+param([switch]$Remove, [switch]$EnvVarOnly, [switch]$SkipRtk)
 
 $ErrorActionPreference = "Stop"
-
 $ScriptDir = Split-Path -Parent $PSCommandPath
-$ConfigRoot = Resolve-Path "$ScriptDir\.."
-$RepoRoot = Resolve-Path "$ScriptDir\..\.."
+$SetupMjs = Join-Path $ScriptDir "setup.mjs"
 
-$Items = @(
-    @{ Target = "$ConfigRoot\opencode.jsonc"; Link = "$RepoRoot\opencode.jsonc"; Type = "file" }
-    @{ Target = "$ConfigRoot\AGENTS.md";      Link = "$RepoRoot\AGENTS.md";      Type = "file" }
-    @{ Target = "$ConfigRoot\.opencode";      Link = "$RepoRoot\.opencode";      Type = "dir"  }
-    @{ Target = "$ConfigRoot\docs\agents";    Link = "$RepoRoot\docs\agents";    Type = "dir"  }
-)
+$nodeArgs = @()
+if ($Remove) { $nodeArgs += "--remove" }
+if ($EnvVarOnly) { $nodeArgs += "--env-var-only" }
+if ($SkipRtk) { $nodeArgs += "--skip-rtk" }
 
-# ---- Remove ----
-if ($Remove) {
-    foreach ($item in $Items) {
-        if (-not (Test-Path $item.Link)) {
-            Write-Host "[--] Not found: $($item.Link)"
-            continue
-        }
-        $linkItem = Get-Item $item.Link -Force -ErrorAction SilentlyContinue
-        $isReparse = $linkItem -and ($linkItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)
-        if ($isReparse -and $item.Type -eq "dir") {
-            cmd /c rmdir "$($item.Link)" 2>$null
-        } else {
-            Remove-Item -Force $item.Link
-        }
-        if (-not (Test-Path $item.Link)) {
-            Write-Host "[OK] Removed: $($item.Link)"
-        } else {
-            Write-Warning "[!!] Could not remove: $($item.Link)"
-        }
-    }
-    return
+# Prefer node, fall back to fnm/nvm-managed node
+$node = Get-Command node -ErrorAction SilentlyContinue
+if (-not $node) {
+    Write-Error "Node.js is required to run setup. Install it from https://nodejs.org"
+    exit 1
 }
 
-# ---- Env var only ----
-if ($EnvVarOnly) {
-    Write-Host "Set the following environment variable to use opencode-config directly:"
-    Write-Host ""
-    Write-Host "  `$env:OPENCODE_CONFIG_DIR = '$ConfigRoot'"
-    Write-Host ""
-    Write-Host "Add it to your PowerShell `$PROFILE to persist:"
-    Write-Host "  Add-Content `$PROFILE '`$env:OPENCODE_CONFIG_DIR = ""$ConfigRoot""'"
-    return
-}
-
-# ---- Test capabilities ----
-function Test-Capability($type, $isDir) {
-    try {
-        $tmp = Join-Path $env:TEMP "oc_test_$([System.IO.Path]::GetRandomFileName())"
-        if ($isDir) {
-            $tmpTarget = Join-Path $env:TEMP "oc_test_dir_target_$([System.IO.Path]::GetRandomFileName())"
-            New-Item -ItemType Directory -Path $tmpTarget -Force -ErrorAction Stop | Out-Null
-            New-Item -ItemType $type -Path $tmp -Target $tmpTarget -Force -ErrorAction Stop | Out-Null
-        } else {
-            $tmpTarget = Join-Path $env:TEMP "oc_test_file_target_$([System.IO.Path]::GetRandomFileName())"
-            New-Item -ItemType File -Path $tmpTarget -Force -ErrorAction Stop | Out-Null
-            New-Item -ItemType $type -Path $tmp -Target $tmpTarget -Force -ErrorAction Stop | Out-Null
-        }
-        Remove-Item -Force $tmp, $tmpTarget -ErrorAction SilentlyContinue | Out-Null
-        return $true
-    } catch {
-        Remove-Item -Force $tmp, $tmpTarget -ErrorAction SilentlyContinue | Out-Null
-        return $false
-    }
-}
-
-$canSymlinkFile = Test-Capability "SymbolicLink" $false
-$canSymlinkDir  = Test-Capability "SymbolicLink" $true
-$canJunction    = Test-Capability "Junction"     $true
-$canHardlink    = Test-Capability "HardLink"     $false
-
-# ---- Determine best link type per item ----
-$linkTypeFor = @{}
-foreach ($item in $Items) {
-    if ($item.Type -eq "dir" -and $canSymlinkDir) {
-        $linkTypeFor[$item.Link] = "SymbolicLink"
-    } elseif ($item.Type -eq "file" -and $canSymlinkFile) {
-        $linkTypeFor[$item.Link] = "SymbolicLink"
-    } elseif ($item.Type -eq "dir" -and $canJunction) {
-        $linkTypeFor[$item.Link] = "Junction"
-    } elseif ($item.Type -eq "file" -and $canHardlink) {
-        $linkTypeFor[$item.Link] = "HardLink"
-    } else {
-        $linkTypeFor[$item.Link] = $null
-    }
-}
-
-# ---- Create links ----
-foreach ($item in $Items) {
-    if (Test-Path $item.Link) {
-        Write-Host "[--] Already exists: $($item.Link)"
-        continue
-    }
-
-    $type = $linkTypeFor[$item.Link]
-    if (-not $type) {
-        Write-Warning "[!!] No viable link method for: $($item.Link) ($($item.Type))"
-        continue
-    }
-
-    try {
-        if ($type -eq "Junction") {
-            New-Item -ItemType Junction -Path $item.Link -Target $item.Target -Force -ErrorAction Stop | Out-Null
-        } else {
-            New-Item -ItemType $type -Path $item.Link -Target $item.Target -Force -ErrorAction Stop | Out-Null
-        }
-        Write-Host "[OK] $type`: $($item.Link) -> $($item.Target)"
-    } catch {
-        Write-Warning "[!!] Failed $type for: $($item.Link) -- $($_.Exception.Message)"
-    }
-}
-
-# ---- Create agent config in parent repo ----
-$markerFile = "$RepoRoot\PARENT_REPO_URL"
-if (Test-Path $markerFile) {
-    Write-Host "[--] PARENT_REPO_URL marker already exists: $markerFile"
-} else {
-    $remote = git -C "$RepoRoot" remote get-url origin 2>$null
-    if ($remote) {
-        $remote -match 'github\.com[:/](.+)\.git$' | Out-Null
-        $Matches[1] | Set-Content $markerFile
-        Write-Host "[OK] Created PARENT_REPO_URL marker: $markerFile"
-    } else {
-        Write-Warning "[!!] Could not determine git remote URL for parent repo"
-    }
-}
-
-$scratchDir = "$RepoRoot\.scratch"
-if (Test-Path $scratchDir) {
-    Write-Host "[--] .scratch directory already exists: $scratchDir"
-} else {
-    New-Item -ItemType Directory -Path $scratchDir -Force | Out-Null
-    Write-Host "[OK] Created .scratch directory: $scratchDir"
-}
-
-# ---- Summary ----
-$allOk = ($Items | ForEach-Object { Test-Path $_.Link }) -notcontains $false
-if ($allOk) {
-    Write-Host ""
-    Write-Host "All config links are in place. OpenCode will pick up config from:"
-    Write-Host "  $ConfigRoot"
-} else {
-    Write-Host ""
-    Write-Warning "Some links could not be created."
-    Write-Warning "Either run as Administrator / enable Developer Mode, or use -EnvVarOnly."
-}
+& $node.Source $SetupMjs @nodeArgs
+exit $LASTEXITCODE

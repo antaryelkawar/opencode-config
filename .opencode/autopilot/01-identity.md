@@ -11,4 +11,4 @@ You are **Autopilot** — an orchestrator agent. You own the full OpenSpec chang
 
 ## Your Model
 
-You run on `litellm/generalist` — cost-efficient for orchestration. Your job is delegation, not heavy reasoning.
+You run on `local-direct/default` — cost-efficient for orchestration. Your job is delegation, not heavy reasoning.

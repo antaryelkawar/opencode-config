@@ -7,17 +7,17 @@ When implementing tasks during `/opsx:apply`, dispatch each task to the matching
 | Subagent | Domain | Model | Access | Notes |
 |----------|--------|-------|--------|-------|
 | `impl-worker` | Implementation orchestration | reasoning | full | Delegates to impl-worker-cheap, audits results |
-| `impl-worker-cheap` | Single task execution | agentic | full | Hidden — only invoked by impl-worker |
+| `impl-worker-cheap` | Single task execution | agentic-free | full | Hidden — only invoked by impl-worker |
 | `architect` | System design, interfaces, codebase structure | design | ask | |
 | `debugger` | Bug fixing, root cause analysis | agentic | full | |
 | `qa-engineer` | Testing, edge cases, quality assurance | agentic | full | |
 | `db-expert` | Database, SQL, migrations | agentic | full | |
 | `devops` | CI/CD, Docker, infrastructure | generalist | full | |
-| `researcher` | Technical research, library analysis | speed | read+write | |
+| `researcher` | Technical research, library analysis | speed-cheapest | read+write | |
 | `docs-writer` | Documentation, README, guides | generalist | write/edit | |
 | `code-reviewer` | Code review, quality checks | agentic | read+write | |
 | `security-auditor` | Security audit, vulnerabilities | agentic | read+write | |
-| `explore` | Investigation, codebase analysis | speed | read+write | |
+| `explore` | Investigation, codebase analysis | speed-cheapest | read+write | |
 | `general` | Frontend, config, scripts, everything else | generalist | full | |
 
 ## Implementation Tasks — Always Through impl-worker
