@@ -15,9 +15,9 @@ Use these skills when relevant:
 - `.opencode/skills/commit-helper/` — conventional commit messages
 - `.agents/skills/tdd/` — TDD workflow if tests are needed
 - `Code Standards Index`: `read .opencode/standards/README.md`
-- `General Clean Code Principles`: `read .opencode/standards/general.md`
-- `TypeScript Language Standards`: `read .opencode/standards/languages/typescript.md`
-- `General Testing Guidelines`: `read .opencode/standards/testing/general.md`
+- `General Clean Code Principles`: `read .opencode/standards/general/clean-code/rules.md`
+- `TypeScript Language Standards`: `read .opencode/standards/README.md` (TypeScript section)
+- `General Testing Guidelines`: `read .opencode/standards/general/testing/rules.md`
 
 === OUTPUT CONTRACT ===
 1. Your task prompt gives the exact output path. Write ALL deliverables and results to that file.

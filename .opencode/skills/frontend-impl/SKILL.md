@@ -16,7 +16,7 @@ metadata:
 - Optimize for performance
 
 ## When to use me
-Use this skill when implementing user interfaces, components, or client-side features. Refer to the [TypeScript Language Standards](../../standards/languages/typescript.md) for detailed guidelines.
+Use this skill when implementing user interfaces, components, or client-side features. Refer to the [Code Standards Index](../../standards/README.md) (TypeScript section) for detailed guidelines.
 
 ## Guidelines
 - Follow the project's component patterns

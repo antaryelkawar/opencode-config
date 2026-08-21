@@ -5,7 +5,8 @@
   "small_model": "litellm/speed",
   "shell": "powershell",
   "instructions": [
-    "docs/agents/git-safety.md",
+    ".opencode/agents/git-safety.md",
+    ".opencode/agents/subagent-routing.md",
     ".opencode/standards/README.md"
   ],
   "provider": {
@@ -61,7 +62,7 @@
       }
     }
   },
-  "plugin": ["opencode-plugin-openspec", "./.opencode/plugins/rtk.ts"],
+  "plugin": ["opencode-plugin-openspec", "./.opencode/plugins/rtk.ts", "./.opencode/plugins/scratch.ts"],
   "mcp": {
     "idea": {
       "type": "remote",
@@ -176,30 +177,6 @@
         }
       }
     },
-    // Security audit subagent
-    "security-auditor": {
-      "description": "Security audit agent - finds vulnerabilities and security issues",
-      "mode": "subagent",
-      "steps": 50,
-      "model": "litellm/agentic",
-      "prompt": "{file:./.opencode/prompts/security-auditor-instructions.md}",
-      "tools": {
-        "read": true,
-        "grep": true,
-        "glob": true,
-        "edit": false,
-        "write": true
-      },
-      "permission": {
-        "edit": "deny",
-        "write": "allow",
-        "question": "allow",
-        "skill": {
-          "*": "deny",
-          "security-audit": "allow"
-        }
-      }
-    },
     // System architect subagent
     "architect": {
       "description": "System architect - designs boundaries, interfaces, and codebase structure",
@@ -216,8 +193,7 @@
         "task": {
           "*": "deny",
           "explore": "allow",
-          "researcher": "allow",
-          "security-auditor": "allow"
+          "websearcher": "allow"
         },
         "skill": {
           "*": "deny",
@@ -256,82 +232,13 @@
         }
       }
     },
-    // QA test subagent
-    "qa-engineer": {
-      "description": "QA engineer - ensures quality via comprehensive test suites",
-      "mode": "subagent",
-      "steps": 100,
-      "model": "litellm/agentic",
-      "prompt": "{file:./.opencode/prompts/qa-engineer-instructions.md}",
-      "permission": {
-        "edit": "allow",
-        "read": "allow",
-        "write": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "question": "allow",
-        "task": {
-          "*": "deny",
-          "explore": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "tdd": "allow",
-          "backend-impl": "allow"
-        }
-      }
-    },
-    // Database expert subagent
-    "db-expert": {
-      "description": "Database expert - manages schemas and query optimization",
-      "mode": "subagent",
-      "steps": 100,
-      "model": "litellm/agentic",
-      "prompt": "{file:./.opencode/prompts/db-expert-instructions.md}",
-      "permission": {
-        "edit": "allow",
-        "read": "allow",
-        "write": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "question": "allow",
-        "skill": {
-          "*": "deny"
-        }
-      }
-    },
-    // DevOps CI/CD subagent
-    "devops": {
-      "description": "DevOps engineer - manages CI/CD and infrastructure",
-      "mode": "subagent",
-      "steps": 100,
-      "model": "litellm/generalist",
-      "prompt": "{file:./.opencode/prompts/devops-instructions.md}",
-      "permission": {
-        "edit": "allow",
-        "read": "allow",
-        "write": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "question": "allow",
-        "task": {
-          "*": "deny",
-          "explore": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "setup-pre-commit": "allow",
-          "setup-matt-pocock-skills": "allow"
-        }
-      }
-    },
-    // Technical research subagent
-    "researcher": {
-      "description": "Technical researcher - analyzes docs and feasibility",
+    // Web researcher — external research via web search/fetch, hardened against prompt injection
+    "websearcher": {
+      "description": "Web researcher - external research via web search/fetch, hardened against prompt injection",
       "mode": "subagent",
       "steps": 30,
       "model": "litellm/speed-cheapest",
-      "prompt": "{file:./.opencode/prompts/researcher-instructions.md}",
+      "prompt": "{file:./.opencode/prompts/websearcher-instructions.md}",
       "permission": {
         "edit": "deny",
         "write": "allow",
@@ -342,8 +249,7 @@
         "webfetch": "allow",
         "question": "allow",
         "skill": {
-          "*": "deny",
-          "zoom-out": "allow"
+          "*": "deny"
         }
       }
     },
@@ -472,7 +378,7 @@
           "impl-worker": "allow",
           "verifier": "allow",
           "explore": "allow",
-          "researcher": "allow",
+          "websearcher": "allow",
           "general": "allow"
         }
       }

@@ -11,7 +11,7 @@ You drive one OpenSpec change at a time through the phases below. Subagents perf
 
 1. Determine the change slug: use the user's name; else `openspec list --json` — exactly one active change → use it, ambiguous → ask.
 2. If `.autopilot/change-<slug>/state.md` exists: read it, resume at the first unchecked phase. Never re-dispatch a checked phase.
-3. Else: create `.autopilot/change-<slug>/` and state.md from the template (fill `<slug>`, status `SPEC`).
+3. Else: create `.autopilot/change-<slug>/` and state.md from the template (fill `<slug>`, status `SPEC`). Record `base:` in `## Baseline` as the current `git rev-parse HEAD` (the commit this change builds on). This is the reference point for scoping the commit.
 
 ## 1. SPEC — dispatch `architect`
 
@@ -52,7 +52,19 @@ The verifier runs the real tests, reviews the code against the specs, and writes
 
 ## 5. COMMIT — autopilot
 
-`git add -A` then `git commit` (user approves once via the permission prompt). Conventional message referencing the change slug.
+Stage **only** the files this change touched — never a blanket `git add -A` / `git add .`. Multiple autopilots may run concurrently; a sweep would commit their in-flight work too. The file set is computed by git against the `base` sha, never hand-maintained.
+
+1. Read `base:` from `## Baseline` in state.md.
+2. Compute the change's file set (tracked changes + untracked, excluding scratch):
+   ```
+   git diff --name-only --diff-filter=ACMR <base>
+   git ls-files --others --exclude-standard
+   ```
+   Exclude any path under `.autopilot/` or `.tmp/` (backstop — the gitignore normally keeps them out).
+3. `git add -- <path1> <path2> …` (exactly that set).
+4. `git commit -m "<type>(<slug>): <summary>"` (user approves once via the permission prompt).
+
+If the set is empty, skip the commit and note it in the log.
 
 ## 6. ARCHIVE — autopilot
 

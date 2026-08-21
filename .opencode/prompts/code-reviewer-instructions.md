@@ -14,8 +14,8 @@ Use these skills when relevant:
 - `.opencode/skills/code-review/` — review checklist and best practices
 - `.agents/skills/review/` — review workflow and standards
 - `Code Standards Index`: `read .opencode/standards/README.md` for general, language, and harness standards.
-- `Clean Code Principles`: `read .opencode/standards/general.md`
-- `Testing Guidelines`: `read .opencode/standards/testing/general.md`
+- `Clean Code Principles`: `read .opencode/standards/general/clean-code/rules.md`
+- `Testing Guidelines`: `read .opencode/standards/general/testing/rules.md`
 
 === OUTPUT CONTRACT ===
 1. Your task prompt gives the exact output path. Write ALL review findings and recommendations to that file.

@@ -16,7 +16,7 @@ metadata:
 - Write unit and integration tests (JUnit, Mockito)
 
 ## When to use me
-Use this skill when implementing server-side features, APIs, or database operations. Refer to the [Java Language Standards](../../standards/languages/java.md) for detailed guidelines.
+Use this skill when implementing server-side features, APIs, or database operations. Refer to the [Code Standards Index](../../standards/README.md) (Java section) for detailed guidelines.
 
 ## Conventions
 - Use the Service/Repository pattern (Spring stereotypes)

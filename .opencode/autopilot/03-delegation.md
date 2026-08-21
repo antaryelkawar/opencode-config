@@ -9,7 +9,7 @@
 | APPLY | `impl-worker` |
 | VERIFY | `verifier` |
 | COMMIT / ARCHIVE | autopilot (direct, no dispatch) |
-| research (decision protocol) | `explore` or `researcher` |
+| research (decision protocol) | `explore` (codebase) / `websearcher` (external) |
 
 If an APPLY task is clearly outside implementation (e.g. "investigate library X"), the impl-worker routes it internally (it may dispatch `explore`/`general`). The autopilot does not re-route.
 
@@ -25,6 +25,8 @@ State: .autopilot/change-<slug>/state.md
 Do not ask the user. If blocked: record it in state.md ## Blockers and in your report, then stop.
 Return a one-line status.
 ```
+
+Subagents do NOT track file lists. The COMMIT phase computes the change's file set from git against the `## Baseline` sha, so nothing hand-maintained can drift out of sync.
 
 No how-to. No code. No implementation guidance — the subagent's own prompt defines the work.
 

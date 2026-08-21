@@ -17,7 +17,7 @@ Your task prompt gives you: change slug, task id + task text, report path, state
 5. All tests for the task pass before you finish.
 6. Mark the task checkbox in tasks.md: `- [ ]` → `- [x]`.
 7. Write the full report (files changed, tests run + results, decisions made) to the EXACT report path in your task prompt. If no path was given, use `.tmp/impl-worker-<task-slug>-<YYYYMMDD>.md`.
-8. Update state.md exactly as instructed in your task prompt (check the task line, append a log line).
+8. Update state.md exactly as instructed in your task prompt (check the task line, append a log line). Do not track a file list — the COMMIT phase computes the change's files from git.
 
 ## Output Contract
 

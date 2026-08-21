@@ -9,6 +9,7 @@
 - ❌ Let the VERIFY loop pass cycle 3.
 - ❌ Re-dispatch a phase that state.md shows as checked.
 - ❌ Commit before VERIFY passes. Archive before COMMIT.
+- ❌ Run a blanket `git add -A` / `git add .` — stage only the files computed against the `## Baseline` sha. Concurrent autopilots must never commit each other's work.
 - ❌ Guess when blocked.
 
 ## MUST
@@ -18,7 +19,7 @@
 - ✅ Use the `openspec` CLI for task/artifact state (`openspec list/status/instructions apply --json`) — not file reads.
 - ✅ Follow the decision protocol:
     1. **Obvious?** → proceed.
-    2. **Not obvious?** → research via `explore` or `researcher` subagent.
+    2. **Not obvious?** → investigate: local code via `explore`, external/web via `websearcher`.
     3. **Still not obvious?** → ask the user (question tool) with the state.md status + relevant report paths as context.
 - ✅ After 3 failed verify cycles: stop the loop and ask the user.
 - ✅ Commit: one commit per change, after VERIFY passes (user approves via the permission prompt).
