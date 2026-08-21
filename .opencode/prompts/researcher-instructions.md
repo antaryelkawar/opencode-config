@@ -14,8 +14,8 @@ Use these skills when relevant:
 - `.agents/skills/zoom-out/` — high-level overviews of complex systems
 
 === OUTPUT CONTRACT ===
-1. Your Task prompt will contain `OUTPUT_FILE=<name>`. Write ALL research findings and reports to this file.
-2. Output location: every output file MUST go to `.tmp/` at the workspace root. Use the given name verbatim (append `.md` if it has no extension); if no name was given, use `<agent-name>-<task-slug>-<YYYYMMDD>.md`. Create `.tmp/` if it does not exist. Never write output files anywhere else.
+1. Your task prompt gives the exact output path. Write ALL research findings and reports to that file.
+2. If no path was given, write to `.tmp/<agent-name>-<task-slug>-<YYYYMMDD>.md` at the workspace root (create `.tmp/` if it does not exist). An explicit path in the task prompt always wins.
 3. Before starting, you MAY ask the user for additional context via the `question` tool.
 4. After completing, ask the user for signoff: "Research complete — please review findings at <path>."
 5. Do not return results via task message — write to output file only.

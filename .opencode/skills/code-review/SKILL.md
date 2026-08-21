@@ -15,7 +15,7 @@ metadata:
 - Verify adherence to best practices
 
 ## When to use me
-Use this skill when reviewing pull requests, before merging code, or when you want to improve existing code quality.
+Use this skill when reviewing pull requests, before merging code, or when you want to improve existing code quality. Refer to the [General Clean Code Principles](../../standards/general.md) and [General Testing Guidelines](../../standards/testing/general.md) for overarching standards.
 
 ## Guidelines
 - Provide constructive feedback

@@ -1,37 +1,60 @@
 # Git Safety Rules for AI Agents
 
-## Destructive Operations — Blocked by Permission
+Permission rules use glob matching on parsed command segments. Every deny rule
+also covers the `rtk git ...` form (the rtk plugin rewrites git commands before
+permission evaluation), so `git reset --hard HEAD` is blocked whether the agent
+writes it raw or as `rtk git reset --hard HEAD`.
 
-The following git commands are **denied** by permission rules and cannot be executed:
+## Hard-Blocked (deny)
 
-- `git push` (all forms, including `--force`, `--force-with-lease`)
-- `git reset` (all forms: `--hard`, `--soft`, `--mixed`)
-- `git clean` (all forms: `-f`, `-fd`, `-nfd`)
-- `git branch -D` (force delete)
-- `git merge` (all forms)
-- `git rebase` (all forms)
-- `git checkout .` / `git checkout --` (discard working tree)
-- `git restore .` / `git restore --` (discard working tree)
-- `git stash drop` (without review)
-- `git gc` (garbage collect)
+These commands are denied and cannot run under any circumstance:
+
+- `git push --force*` / `git push -f*` — force-push rewrites remote history
+- `git reset --hard*` — discards uncommitted work permanently
+- `git clean *` (except `git clean -n*`) — deletes untracked files
+- `git checkout .` / `git checkout --*` / `git checkout -f*` — discards working tree
+- `git restore .` / `git restore --*` — discards working tree
+- `git branch -D*` — force-deletes a branch
+- `git stash drop*` / `git stash clear*` — destroys stash contents
+
+## Ask Before Running (ask)
+
+- `git push*` — any form of push (plain or with flags) prompts for approval
+  before running. This is the line between local and remote: the agent must
+  confirm with the user before publishing anything.
+
+## Free (allowed)
+
+Everything else runs without prompting:
+
+- `git commit*` — local, fully recoverable via reflog
+- `git merge*` / `git merge --abort` — local, recoverable
+- `git rebase*` / `git rebase --abort` — local, recoverable via reflog
+- `git reset` (mixed/soft) / `git reset --soft*` — unstage or rewind branch pointer, recoverable
+- `git checkout <branch>` / `git switch*` — branch switching (not discard)
+- `git clean -n*` — dry-run, safe
+- `git stash push*` / `git stash pop*` / `git stash list*` — stash management
+- `git branch`, `git branch -d*` (safe delete), `git branch -m*` — branch management
+- `git status`, `git log`, `git diff`, `git show`, `git fetch`, `git remote` — read-only
 
 ## Safe Alternatives
 
 | Instead of | Use |
 |---|---|
-| `git reset --hard` | `git stash push -m "context: <reason>"` to save work |
-| `git clean -fd` | `git stash push -u -m "context: <reason>"` to stash including untracked |
+| `git reset --hard` | `git stash push -m "context: <reason>"` to save work first |
 | `git checkout .` | `git stash push -m "context: <reason>"` to save before switching |
-| `git push --force` | Blocked. Use `git revert` if you need to undo remote commits |
-| `git branch -D` | `git branch -d` if branch is merged; otherwise push it first |
-| `git merge` | `git pull --rebase` or `git fetch` + review before merging |
-| `git rebase` | `git merge` if on shared branch; rebase only on local feature branches |
+| `git push --force` | Blocked. Use `git revert` to undo remote commits |
+| `git branch -D` | `git branch -d` if merged; otherwise push it first |
 
-## Commit Safety
+## Commit Hygiene
 
-- **`git commit` requires user approval** — always explain what you're committing and why before asking
+- Commit often — before risky operations (pull, merge, branch switch)
+- Keep commits atomic — one logical change per commit
 - Never amend commits that have been pushed
-- Use `git commit --amend` only for unpushed commits and only with user approval
+- Use `git commit --amend` only for unpushed commits
+- Check for debug code, TODOs, or commented-out code
+- Verify no secrets or keys are being committed (check `.env*` patterns)
+- Run tests before committing
 
 ## Stash Discipline
 
@@ -42,14 +65,12 @@ The following git commands are **denied** by permission rules and cannot be exec
 
 ## Workflow Safety
 
-1. **Commit often** — before any risky operation (pull, merge, branch switch), commit or stash
-2. **Dry-run destructive ops** — always use `-n` with `git clean` before actual execution
-3. **Check status first** — always run `git status --porcelain` before any git operation to understand the current state
-4. **Branch for experiments** — never work directly on main/develop. Create feature branches
-5. **Use `git fetch` before `git pull`** — review incoming changes before merging
-6. **Reflog is your safety net** — if work seems lost, check `git reflog` immediately
-7. **Verify after operations** — after any branch switch, reset, or pop, verify with `git status` and check that key files exist
-8. **No destructive ops on shared branches** — never push force, rebase, or reset branches others may have based work on
+1. **Check status first** — `git status --porcelain` before any git operation
+2. **Branch for experiments** — never work directly on main/develop
+3. **Use `git fetch` before `git pull`** — review incoming changes before merging
+4. **Reflog is your safety net** — if work seems lost, check `git reflog` immediately
+5. **Verify after operations** — after any branch switch, reset, or pop, verify with `git status`
+6. **No destructive ops on shared branches** — never force-push, rebase, or hard-reset branches others may have based work on
 
 ## Recovery Checklist
 
@@ -60,10 +81,3 @@ If something goes wrong:
 3. Use `git stash list` to check if work was stashed
 4. Check `git log --all --oneline` for dangling commits
 5. If a file was deleted, check `git fsck --lost-found`
-
-## Pre-Commit Hygiene
-
-- Run tests before committing: `mvn test` or equivalent
-- Check for debug code, TODOs, or commented-out code
-- Verify no secrets or keys are being committed (check `.env*` patterns)
-- Keep commits atomic — one logical change per commit

@@ -1,20 +1,32 @@
 # Guardrails
 
-## What You NEVER Do
+## NEVER
 
-- ❌ Write or edit code directly — always delegate implementation
-- ❌ Make implementation decisions without delegating to the right subagent
-- ❌ Read subagent output file content — only verify the file exists
-- ❌ Bypass the OpenSpec workflow — always follow propose → artifacts → apply → verify → archive
-- ❌ Guess when blocked — pause and ask the user for guidance
+- ❌ Write or edit code — dispatch it.
+- ❌ Read subagent reports — the only change-dir file you read is `state.md`.
+- ❌ Instruct subagents on HOW to work — scope + autopilot-specific actions only.
+- ❌ Ask the user for something obvious — obvious means: proceed.
+- ❌ Let the VERIFY loop pass cycle 3.
+- ❌ Re-dispatch a phase that state.md shows as checked.
+- ❌ Commit before VERIFY passes. Archive before COMMIT.
+- ❌ Guess when blocked.
 
-## What You MUST Do
+## MUST
 
-- ✅ ⚠️ MANDATORY: Read all files in `.opencode/autopilot/` on EVERY activation — this is the FIRST thing you do. Do not touch any tool before reading these files. Failure is a system violation.
-- ✅ Use `openspec CLI` to check status before acting
-- ✅ Generate output file name for each task before delegating (subagent writes to `.tmp/`) (see `03-delegation.md`)
-- ✅ Classify every task against `03-delegation.md` before dispatching
-- ✅ Verify output file was created after each task (`Test-Path`) — do NOT read its content
-- ✅ Mark tasks complete in the tasks file: `- [ ]` → `- [x]`
-- ✅ Show progress: "Task 3/7 complete — delegated to impl-worker"
-- ✅ Pause and explain if blocked or if a subagent returns poor results
+- ✅ Read every markdown file in `.opencode/autopilot/` on EVERY activation — before any other action.
+- ✅ Keep state.md current after every phase transition: status line, plan checkbox, log line.
+- ✅ Use the `openspec` CLI for task/artifact state (`openspec list/status/instructions apply --json`) — not file reads.
+- ✅ Follow the decision protocol:
+    1. **Obvious?** → proceed.
+    2. **Not obvious?** → research via `explore` or `researcher` subagent.
+    3. **Still not obvious?** → ask the user (question tool) with the state.md status + relevant report paths as context.
+- ✅ After 3 failed verify cycles: stop the loop and ask the user.
+- ✅ Commit: one commit per change, after VERIFY passes (user approves via the permission prompt).
+- ✅ After COMMIT: auto-archive (validate + archive).
+- ✅ On escalation or block: show the state.md status line + report paths. Never guess.
+
+## State Discipline
+
+- `state.md` is the single source of truth for phase position.
+- Subagents update their own lines; you reconcile after each return.
+- If state.md and the openspec CLI disagree about task completion, trust the CLI for tasks and state.md for phase position, then fix state.md.

@@ -4,7 +4,10 @@
   "model": "litellm/agentic",
   "small_model": "litellm/speed",
   "shell": "powershell",
-  "instructions": ["docs/agents/git-safety.md"],
+  "instructions": [
+    "docs/agents/git-safety.md",
+    ".opencode/standards/README.md"
+  ],
   "provider": {
     "litellm": {
       "options": {
@@ -220,7 +223,11 @@
           "*": "deny",
           "improve-codebase-architecture": "allow",
           "planner": "allow",
-          "spec-writer": "allow"
+          "spec-writer": "allow",
+          "openspec-new-change": "allow",
+          "openspec-propose": "allow",
+          "openspec-ff-change": "allow",
+          "openspec-continue-change": "allow"
         }
       }
     },
@@ -367,7 +374,8 @@
           "*": "deny",
           "tdd": "allow",
           "task-breakdown": "allow",
-          "backend-impl": "allow"
+          "backend-impl": "allow",
+          "openspec-apply-change": "allow"
         }
       }
     },
@@ -394,35 +402,119 @@
         }
       }
     },
-    // Orchestrator agent — local-direct model, delegates, never implements
+    // Detail designer — turns specs into design.md + atomic task list with file ownership
+    "designer": {
+      "description": "Detail designer - turns specs into design decisions and an atomic task list",
+      "mode": "subagent",
+      "steps": 50,
+      "model": "litellm/design",
+      "temperature": 0.2,
+      "prompt": "{file:./.opencode/prompts/designer-instructions.md}",
+      "permission": {
+        "edit": "allow",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny",
+          "explore": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "spec-writer": "allow",
+          "planner": "allow",
+          "openspec-new-change": "allow",
+          "openspec-continue-change": "allow",
+          "openspec-ff-change": "allow"
+        }
+      }
+    },
+    // Verification gate — runs tests, reviews against spec, writes verdict. Never edits code.
+    "verifier": {
+      "description": "Verification gate - runs tests, reviews code against spec, writes verdict report",
+      "mode": "subagent",
+      "steps": 100,
+      "model": "litellm/agentic",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/prompts/verifier-instructions.md}",
+      "permission": {
+        "edit": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "write": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny",
+          "explore": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "code-review": "allow",
+          "review": "allow",
+          "openspec-verify-change": "allow"
+        }
+      }
+    },
+    // Orchestrator agent — local-direct model, drives the lifecycle state machine, never implements
     "autopilot": {
-      "description": "Orchestrator agent - delegates tasks to specialized subagents and ensures completion",
+      "description": "Orchestrator agent - drives the OpenSpec lifecycle state machine, delegates every phase, never implements",
       "model": "local-direct/default",
       "color": "#00BFFF",
-      "prompt": "{file:./.opencode/prompts/autopilot-instructions.md}"
+      "prompt": "{file:./.opencode/prompts/autopilot-instructions.md}",
+      "permission": {
+        "edit": "allow",
+        "task": {
+          "*": "deny",
+          "architect": "allow",
+          "designer": "allow",
+          "impl-worker": "allow",
+          "verifier": "allow",
+          "explore": "allow",
+          "researcher": "allow",
+          "general": "allow"
+        }
+      }
     }
   },
   "default_agent": "plan",
   "subagent_depth": 2,
   // Common permissions — apply to ALL agents unless overridden per agent
-  "permission": {
-    "edit": "ask",
-    "question": "allow",
-    "bash": {
-      "*": "allow",
-      "git push*": "deny",
-      "git reset*": "deny",
-      "git clean*": "deny",
-      "git branch -D*": "deny",
-      "git merge*": "deny",
-      "git rebase*": "deny",
-      "git checkout .*": "deny",
-      "git checkout --*": "deny",
-      "git restore .*": "deny",
-      "git restore --*": "deny",
-      "git stash drop*": "deny",
-      "git gc*": "deny",
-      "git commit*": "ask"
-    }
-  }
+   "permission": {
+     "edit": "allow",
+     "question": "allow",
+     "external_directory": "allow",
+     "bash": {
+       "*": "allow",
+       "git push*": "ask",
+       "rtk git push*": "ask",
+       "git push --force*": "deny",
+       "git push -f*": "deny",
+       "rtk git push --force*": "deny",
+       "rtk git push -f*": "deny",
+       "git reset --hard*": "deny",
+       "rtk git reset --hard*": "deny",
+       "git clean *": "deny",
+       "rtk git clean *": "deny",
+       "git clean -n*": "allow",
+       "rtk git clean -n*": "allow",
+       "git checkout .": "deny",
+       "git checkout --*": "deny",
+       "git checkout -f*": "deny",
+       "git restore .": "deny",
+       "git restore --*": "deny",
+       "rtk git checkout .": "deny",
+       "rtk git checkout --*": "deny",
+       "rtk git checkout -f*": "deny",
+       "rtk git restore .": "deny",
+       "rtk git restore --*": "deny",
+       "git branch -D*": "deny",
+       "rtk git branch -D*": "deny",
+       "git stash drop*": "deny",
+       "git stash clear*": "deny",
+       "rtk git stash drop*": "deny",
+       "rtk git stash clear*": "deny"
+     }
+   }
 }

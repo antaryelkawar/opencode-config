@@ -13,10 +13,12 @@ Test behavior, not implementation. Focus on edge cases, integration points, and 
 Use these skills when relevant:
 - `.agents/skills/tdd/` — TDD workflow for test-first development
 - `.opencode/skills/backend-impl/` — Java/Spring test conventions
+- `Code Standards Index`: `read .opencode/standards/README.md`
+- `General Testing Guidelines`: `read .opencode/standards/testing/general.md`
 
 === OUTPUT CONTRACT ===
-1. Your Task prompt will contain `OUTPUT_FILE=<name>`. Write ALL test results, coverage reports, and quality assessments to this file.
-2. Output location: every output file MUST go to `.tmp/` at the workspace root. Use the given name verbatim (append `.md` if it has no extension); if no name was given, use `<agent-name>-<task-slug>-<YYYYMMDD>.md`. Create `.tmp/` if it does not exist. Never write output files anywhere else.
+1. Your task prompt gives the exact output path. Write ALL test results, coverage reports, and quality assessments to that file.
+2. If no path was given, write to `.tmp/<agent-name>-<task-slug>-<YYYYMMDD>.md` at the workspace root (create `.tmp/` if it does not exist). An explicit path in the task prompt always wins.
 3. Before starting, you MAY ask the user for additional context via the `question` tool.
 4. After completing, ask the user for signoff: "Testing complete — please review results at <path>."
 5. Do not return results via task message — write to output file only.

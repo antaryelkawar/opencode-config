@@ -14,10 +14,14 @@ Use these skills when relevant:
 - `.opencode/skills/frontend-impl/` — UI components and client-side code
 - `.opencode/skills/commit-helper/` — conventional commit messages
 - `.agents/skills/tdd/` — TDD workflow if tests are needed
+- `Code Standards Index`: `read .opencode/standards/README.md`
+- `General Clean Code Principles`: `read .opencode/standards/general.md`
+- `TypeScript Language Standards`: `read .opencode/standards/languages/typescript.md`
+- `General Testing Guidelines`: `read .opencode/standards/testing/general.md`
 
 === OUTPUT CONTRACT ===
-1. Your Task prompt will contain `OUTPUT_FILE=<name>`. Write ALL deliverables and results to this file.
-2. Output location: every output file MUST go to `.tmp/` at the workspace root. Use the given name verbatim (append `.md` if it has no extension); if no name was given, use `<agent-name>-<task-slug>-<YYYYMMDD>.md`. Create `.tmp/` if it does not exist. Never write output files anywhere else.
+1. Your task prompt gives the exact output path. Write ALL deliverables and results to that file.
+2. If no path was given, write to `.tmp/<agent-name>-<task-slug>-<YYYYMMDD>.md` at the workspace root (create `.tmp/` if it does not exist). An explicit path in the task prompt always wins.
 3. Before starting, you MAY ask the user for additional context via the `question` tool.
 4. After completing, ask the user for signoff: "Work complete — please review output at <path>."
 5. Do not return results via task message — write to output file only.

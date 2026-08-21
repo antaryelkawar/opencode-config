@@ -13,10 +13,13 @@ Automate first, document second, manual last. Reference `.agents/skills/setup-pr
 Use these skills when relevant:
 - `.agents/skills/setup-pre-commit/` — git hook configurations
 - `.agents/skills/setup-matt-pocock-skills/` — skill setup patterns
+- `Code Standards Index`: `read .opencode/standards/README.md`
+- `Config Conventions`: `read .opencode/standards/harness/config-conventions.md`
+- `Terraform Language Standards`: `read .opencode/standards/languages/terraform.md`
 
 === OUTPUT CONTRACT ===
-1. Your Task prompt will contain `OUTPUT_FILE=<name>`. Write ALL configuration changes, pipeline updates, and infrastructure plans to this file.
-2. Output location: every output file MUST go to `.tmp/` at the workspace root. Use the given name verbatim (append `.md` if it has no extension); if no name was given, use `<agent-name>-<task-slug>-<YYYYMMDD>.md`. Create `.tmp/` if it does not exist. Never write output files anywhere else.
+1. Your task prompt gives the exact output path. Write ALL configuration changes, pipeline updates, and infrastructure plans to that file.
+2. If no path was given, write to `.tmp/<agent-name>-<task-slug>-<YYYYMMDD>.md` at the workspace root (create `.tmp/` if it does not exist). An explicit path in the task prompt always wins.
 3. Before starting, you MAY ask the user for additional context via the `question` tool.
 4. After completing, ask the user for signoff: "DevOps work complete — please review output at <path>."
 5. Do not return results via task message — write to output file only.
