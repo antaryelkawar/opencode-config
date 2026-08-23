@@ -15,12 +15,14 @@ import {
   chmodSync,
   existsSync,
   lstatSync,
+  linkSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   renameSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -41,7 +43,6 @@ const LINKS = [
   [join(CONFIG_ROOT, "AGENTS.md"), join(REPO_ROOT, "AGENTS.md"), false],
   [join(CONFIG_ROOT, ".opencode"), join(REPO_ROOT, ".opencode"), true],
   [join(CONFIG_ROOT, ".agents"), join(REPO_ROOT, ".agents"), true],
-  [join(CONFIG_ROOT, "docs", "agents"), join(REPO_ROOT, "docs", "agents"), true],
 ];
 
 const args = process.argv.slice(2);
@@ -73,14 +74,14 @@ function isReparsePoint(p) {
   }
 }
 
-function confirm(msg) {
+async function confirm(msg) {
   if (FORCE) {
     log(false, "Assuming yes (--force): " + msg);
     return true;
   }
   if (DRY_RUN) return true;
-  const readline = require("node:readline");
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const { createInterface } = await import("node:readline");
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
   return new Promise((res) => rl.question(msg + " [y/N] ", (a) => {
     rl.close();
     res(/^y(es)?$/i.test(a.trim()));
@@ -146,6 +147,20 @@ if (ENV_VAR_ONLY) {
 // ============================================================
 // Create links
 // ============================================================
+// Last-resort: invoke cmd.exe mklink with each flag set in turn.
+// Used only when the native fs API calls above fail.
+function mklinkFallback(link, target, flagSets, kind) {
+  for (const flags of flagSets) {
+    const r = spawnSync("cmd", ["/c", "mklink", ...flags, link, target], { stdio: "pipe" });
+    if (r.status === 0) return log(true, kind + ": " + link + " -> " + target), true;
+  }
+  const lastErr =
+    spawnSync("cmd", ["/c", "mklink", ...flagSets[0], link, target], { stdio: "pipe" })
+      .stderr?.toString() || "unknown error";
+  warn("Failed to link " + link + ": " + lastErr);
+  return false;
+}
+
 function makeLink(target, link, isDir) {
   const ok = (kind) => {
     log(true, kind + ": " + link + " -> " + target);
@@ -154,21 +169,30 @@ function makeLink(target, link, isDir) {
   try {
     if (IS_WIN) {
       if (isDir) {
-        // Junction first (no admin needed), then dir symlink
-        let r = spawnSync("cmd", ["/c", "mklink", "J", link, target], { stdio: "pipe" });
-        if (r.status === 0) return ok("Junction");
-        r = spawnSync("cmd", ["/c", "mklink", "D", link, target], { stdio: "pipe" });
-        if (r.status === 0) return ok("Symlink");
-        warn("Failed to link " + link + ": " + (r.stderr?.toString() || ""));
-        return false;
+        // Junction first (no admin needed), then dir symlink.
+        // Use the fs API directly: cmd.exe's mklink internal is unreliable
+        // (on some Windows builds it mangles backslash paths and reports
+        // "The syntax of the command is incorrect"), and a junction created
+        // via the API works without elevation.
+        try {
+          linkSync(target, link, "junction");
+          return ok("Junction");
+        } catch (e) {
+          try {
+            symlinkSync(target, link, "junction");
+            return ok("Junction");
+          } catch (e2) {
+            return mklinkFallback(link, target, [["J"], ["D"]], "Junction/Symlink");
+          }
+        }
       }
-      // File: symlink first, then hardlink
-      let r = spawnSync("cmd", ["/c", "mklink", link, target], { stdio: "pipe" });
-      if (r.status === 0) return ok("Symlink");
-      r = spawnSync("cmd", ["/c", "mklink", "H", link, target], { stdio: "pipe" });
-      if (r.status === 0) return ok("Hardlink");
-      warn("Failed to link " + link + ": " + (r.stderr?.toString() || ""));
-      return false;
+      // File: hardlink (same volume, no privilege) first, then symlink
+      try {
+        linkSync(target, link);
+        return ok("Hardlink");
+      } catch (e) {
+        return mklinkFallback(link, target, [[], ["H"]], "Symlink/Hardlink");
+      }
     }
     // POSIX
     const r = spawnSync("ln", ["-s", target, link], { stdio: "pipe" });
@@ -183,6 +207,10 @@ function makeLink(target, link, isDir) {
 
 // Returns true when the link is in place (or already fine), false on failure.
 async function ensureLink(target, link, isDir) {
+  if (!existsSync(target)) {
+    warn("Target does not exist, skipping: " + target);
+    return true;
+  }
   if (DRY_RUN) {
     if (linkExists(link)) {
       const alreadyLinked = isSymlink(link) || isReparsePoint(link);
