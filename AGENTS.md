@@ -22,12 +22,12 @@ Skills are loaded from `.agents/skills/` and `.opencode/skills/` in the opencode
 
 - **`CONTEXT.md`** at the repo root (parent repo, JobOptimizer)
 - **`docs/adr/`** — Architecture Decision Records
-- **`.opencode/agents/domain.md`** — detailed domain doc layout
+- **`.opencode/docs/domain.md`** — detailed domain doc layout
 
 ### Issue tracker
 
-GitHub issues in the JobOptimizer parent repository. See `.opencode/agents/issue-tracker.md` for conventions and CLI commands.
+GitHub issues in the JobOptimizer parent repository. See `.opencode/docs/issue-tracker.md` for conventions and CLI commands.
 
 ### Triage labels
 
-Canonical labels used for triage roles. See `.opencode/agents/triage-labels.md` for the label mapping table.
+Canonical labels used for triage roles. See `.opencode/docs/triage-labels.md` for the label mapping table.

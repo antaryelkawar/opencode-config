@@ -5,8 +5,8 @@
   "small_model": "litellm/speed",
   "shell": "powershell",
   "instructions": [
-    ".opencode/agents/git-safety.md",
-    ".opencode/agents/subagent-routing.md",
+    ".opencode/docs/git-safety.md",
+    ".opencode/prompts/subagent-routing.md",
     ".opencode/standards/README.md"
   ],
   "provider": {
