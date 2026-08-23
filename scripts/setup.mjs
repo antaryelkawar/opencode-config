@@ -296,6 +296,49 @@ if (existsSync(scratchDir)) {
 }
 
 // ============================================================
+// .gitignore — ensure created links are ignored in the parent repo
+// ============================================================
+const GITIGNORE_MARKER = "# BEGIN opencode-config (managed by setup.mjs — do not edit)";
+const GITIGNORE_END = "# END opencode-config";
+// Paths that setup.mjs creates as links in the parent repo.
+const GITIGNORE_ENTRIES = [
+  "opencode.jsonc",
+  "AGENTS.md",
+  ".opencode/",
+  ".agents/",
+  "PARENT_REPO_URL",
+  ".scratch/",
+];
+function ensureGitignore() {
+  const gitignorePath = join(REPO_ROOT, ".gitignore");
+  let content = existsSync(gitignorePath) ? readFileSync(gitignorePath, "utf8") : "";
+  const block =
+    GITIGNORE_MARKER + "\n" + GITIGNORE_ENTRIES.join("\n") + "\n" + GITIGNORE_END + "\n";
+  const startIdx = content.indexOf(GITIGNORE_MARKER);
+  const endIdx = content.indexOf(GITIGNORE_END);
+  if (startIdx !== -1 && endIdx !== -1) {
+    const before = content.slice(0, startIdx);
+    const after = content.slice(endIdx + GITIGNORE_END.length);
+    // Drop trailing newlines from the previous block so we don't stack blank lines.
+    const trimmedBefore = before.replace(/\n+$/, "");
+    const newContent = (trimmedBefore ? trimmedBefore + "\n\n" : "") + block + after;
+    if (newContent !== content) {
+      writeFileSync(gitignorePath, newContent);
+      log(true, "Updated managed .gitignore block: " + gitignorePath);
+    } else {
+      log(false, "Managed .gitignore block up to date");
+    }
+    return;
+  }
+  // No managed block yet — append it.
+  const needsLeadingNewline = content.length > 0 && !content.endsWith("\n");
+  const newContent = content + (needsLeadingNewline ? "\n" : "") + (content.trim() ? "\n" : "") + block;
+  writeFileSync(gitignorePath, newContent);
+  log(true, "Added managed .gitignore block: " + gitignorePath);
+}
+ensureGitignore();
+
+// ============================================================
 // rtk provisioning
 // ============================================================
 if (!SKIP_RTK) {
