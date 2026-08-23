@@ -14,3 +14,7 @@ Thumbs.db
 
 # Node / bun
 node_modules/
+# opencode scratch (managed by scratch plugin — do not edit)
+/tmp/
+/.tmp/
+/.autopilot/
