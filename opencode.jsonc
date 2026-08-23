@@ -27,12 +27,29 @@
       }
     },
     "local-direct": {
+      "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "http://localhost:8090/v1",
         "apiKey": "not-needed"
       },
       "models": {
-        "default": { "name": "Local Direct" }
+        "default": {
+          "name": "Local Direct",
+          "variants": {
+            "none": {
+              "reasoningEffort": "none"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        }
       }
     },
     "tower": {
@@ -385,7 +402,7 @@
     }
   },
   "default_agent": "plan",
-  "subagent_depth": 2,
+  "subagent_depth": 3,
   // Common permissions — apply to ALL agents unless overridden per agent
    "permission": {
      "edit": "allow",
