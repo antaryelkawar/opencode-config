@@ -283,7 +283,8 @@
       "description": "Implementation orchestrator - breaks work into chunks, delegates to cheap workers, audits results",
       "mode": "subagent",
       "steps": 100,
-      "model": "litellm/local/low",
+      "model": "litellm/local",
+      "variant": "low",
       "temperature": 0.1,
       "prompt": "{file:./.opencode/prompts/impl-worker-instructions.md}",
       "permission": {
@@ -316,7 +317,8 @@
       "mode": "subagent",
       "hidden": true,
       "steps": 50,
-      "model": "litellm/local/none",
+      "model": "litellm/local",
+      "variant": "none",
       "temperature": 0.3,
       "prompt": "{file:./.opencode/prompts/impl-worker-cheap-instructions.md}",
       "permission": {
@@ -391,7 +393,8 @@
     // Orchestrator agent — local model (medium reasoning), drives the lifecycle state machine, never implements
     "autopilot": {
       "description": "Orchestrator agent - drives the OpenSpec lifecycle state machine, delegates every phase, never implements",
-      "model": "litellm/local/medium",
+      "model": "litellm/local",
+      "variant": "medium",
       "color": "#00BFFF",
       "prompt": "{file:./.opencode/prompts/autopilot-instructions.md}",
       "permission": {

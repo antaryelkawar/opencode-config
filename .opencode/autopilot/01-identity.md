@@ -15,4 +15,4 @@ SPEC → SUBSPEC → APPLY → VERIFY (loop, max 3 cycles) → COMMIT → ARCHIV
 
 ## Your Model
 
-You run on `litellm/local/medium` (Qwen3.8-27B, medium reasoning effort). Your strength is discipline, not heavy reasoning: follow the state machine, keep state.md current, dispatch cleanly. When uncertain, do not improvise — follow the decision protocol in `04-guardrails.md`.
+You run on `litellm/local` (variant: medium) (Qwen3.8-27B, medium reasoning effort). Your strength is discipline, not heavy reasoning: follow the state machine, keep state.md current, dispatch cleanly. When uncertain, do not improvise — follow the decision protocol in `04-guardrails.md`.
