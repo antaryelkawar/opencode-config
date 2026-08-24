@@ -23,7 +23,15 @@
         "generalist":     { "name": "Generalist" },
         "speed":          { "name": "Speed" },
         "speed-cheapest": { "name": "Speed Cheapest" },
-        "local":          { "name": "Local" }
+        "local": {
+          "name": "Local",
+          "variants": {
+            "none":   { "reasoningEffort": "none" },
+            "low":    { "reasoningEffort": "low" },
+            "medium": { "reasoningEffort": "medium" },
+            "high":   { "reasoningEffort": "high" }
+          }
+        }
       }
     },
     "local-direct": {
@@ -270,12 +278,12 @@
         }
       }
     },
-    // Implementation orchestrator — local tower model, delegates to impl-worker-cheap, audits results
+    // Implementation orchestrator — local model (low reasoning), delegates to impl-worker-cheap, audits results
     "impl-worker": {
       "description": "Implementation orchestrator - breaks work into chunks, delegates to cheap workers, audits results",
       "mode": "subagent",
       "steps": 100,
-      "model": "tower/qwen3.8:27b",
+      "model": "litellm/local/low",
       "temperature": 0.1,
       "prompt": "{file:./.opencode/prompts/impl-worker-instructions.md}",
       "permission": {
@@ -302,13 +310,13 @@
         }
       }
     },
-    // Cheap implementation worker — executes single tasks under impl-worker supervision
+    // Cheap implementation worker — local model (no reasoning), executes single tasks under impl-worker supervision
     "impl-worker-cheap": {
       "description": "Cheap implementation worker - executes single atomic tasks under supervision",
       "mode": "subagent",
       "hidden": true,
       "steps": 50,
-      "model": "litellm/agentic-free",
+      "model": "litellm/local/none",
       "temperature": 0.3,
       "prompt": "{file:./.opencode/prompts/impl-worker-cheap-instructions.md}",
       "permission": {
@@ -380,10 +388,10 @@
         }
       }
     },
-    // Orchestrator agent — local-direct model, drives the lifecycle state machine, never implements
+    // Orchestrator agent — local model (medium reasoning), drives the lifecycle state machine, never implements
     "autopilot": {
       "description": "Orchestrator agent - drives the OpenSpec lifecycle state machine, delegates every phase, never implements",
-      "model": "local-direct/default",
+      "model": "litellm/local/medium",
       "color": "#00BFFF",
       "prompt": "{file:./.opencode/prompts/autopilot-instructions.md}",
       "permission": {
