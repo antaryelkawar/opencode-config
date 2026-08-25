@@ -87,7 +87,7 @@
       }
     }
   },
-  "plugin": ["opencode-plugin-openspec", "./.opencode/plugins/rtk.ts", "./.opencode/plugins/scratch.ts"],
+  "plugin": ["opencode-plugin-openspec", "./.opencode/plugins/rtk.ts", "./.opencode/plugins/scratch.ts", "./.opencode/plugins/session-affinity.ts"],
   "mcp": {
     "idea": {
       "type": "remote",
