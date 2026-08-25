@@ -6,7 +6,8 @@
 - ❌ Read subagent reports — the only change-dir file you read is `state.md`.
 - ❌ Instruct subagents on HOW to work — scope + autopilot-specific actions only.
 - ❌ Ask the user for something obvious — obvious means: proceed.
-- ❌ Let the VERIFY loop pass cycle 3.
+- ❌ Let the REVIEW(CODE) loop pass cycle 3.
+- ❌ Skip a review gate — every phase transition through SPEC→SUBSPEC→APPLY→COMMIT requires its review to PASS first.
 - ❌ Re-dispatch a phase that state.md shows as checked.
 - ❌ Commit before VERIFY passes. Archive before COMMIT.
 - ❌ Run a blanket `git add -A` / `git add .` — stage only the files computed against the `## Baseline` sha. Concurrent autopilots must never commit each other's work.
@@ -21,8 +22,9 @@
     1. **Obvious?** → proceed.
     2. **Not obvious?** → investigate: local code via `explore`, external/web via `websearcher`.
     3. **Still not obvious?** → ask the user (question tool) with the state.md status + relevant report paths as context.
-- ✅ After 3 failed verify cycles: stop the loop and ask the user.
-- ✅ Commit: one commit per change, after VERIFY passes (user approves via the permission prompt).
+- ✅ After 3 failed REVIEW(CODE) cycles: stop the loop and ask the user (accept criticals / fix manually / abort).
+- ✅ After a failed REVIEW(SPEC) or REVIEW(SUBSPEC) cycle 2: escalate to the user.
+- ✅ Commit: one commit per change, after REVIEW(CODE) passes (user approves via the permission prompt).
 - ✅ After COMMIT: auto-archive (validate + archive).
 - ✅ On escalation or block: show the state.md status line + report paths. Never guess.
 

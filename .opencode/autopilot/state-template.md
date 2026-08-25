@@ -1,21 +1,26 @@
 # <slug>
 
-status: <SPEC | SUBSPEC | APPLY | VERIFY | COMMIT | ARCHIVE | DONE | BLOCKED>
+status: <SPEC | REVIEW-SPEC | SUBSPEC | REVIEW-SUBSPEC | APPLY | REVIEW-CODE | COMMIT | ARCHIVE | DONE | BLOCKED>
 
 ## Plan
-- [ ] spec     — architect
-- [ ] subspec  — designer
-- [ ] apply    — impl-worker (0/N tasks)
-- [ ] verify   — verifier (cycle 0)
-- [ ] commit   — autopilot
-- [ ] archive  — autopilot
+- [ ] spec          — architect
+- [ ] review-spec   — reviewer (cycle 0)
+- [ ] subspec       — designer
+- [ ] review-subspec — reviewer (cycle 0)
+- [ ] apply         — impl-worker (0/N tasks)
+- [ ] review-code   — reviewer (cycle 0)
+- [ ] commit        — autopilot
+- [ ] archive       — autopilot
 
 ## Tasks
 <!-- Mirror of openspec/changes/<slug>/tasks.md. Subagents check their own line. -->
 
-## Verify
-| cycle | verdict | critical | report |
-|-------|---------|----------|--------|
+## Reviews
+| gate | cycle | verdict | critical | major | report |
+|------|-------|---------|----------|-------|--------|
+| spec |       |         |          |       |        |
+| subspec |    |         |          |       |        |
+| code |       |         |          |       |        |
 
 ## Baseline
 <!-- The git HEAD sha at change start, recorded in phase 0. COMMIT stages the diff against this sha — the file set is computed by git, never hand-maintained, so it cannot drift out of sync. -->

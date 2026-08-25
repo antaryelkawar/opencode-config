@@ -94,7 +94,30 @@
       "url": "http://127.0.0.1:64564/sse",
       "headers": {},
       "enabled": true
+    },
+    // Web/mobile UI tooling — scoped to ui-impl-worker + ui-reviewer only.
+    // The server processes still spawn at startup (MCP has no per-agent enable),
+    // but the *tools* are hidden globally via the `tools` glob and re-enabled
+    // per agent, so only those two agents can invoke them. See "tools" block.
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--headless", "--no-usage-statistics", "--no-performance-crux"],
+      "enabled": true,
+      "timeout": 30000
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest", "--headless", "--caps", "vision,devtools"],
+      "enabled": true,
+      "timeout": 30000
     }
+  },
+  // Globally hide the UI browser MCP tools from every agent. They are
+  // re-enabled ONLY for ui-impl-worker and ui-reviewer in their "tools" blocks.
+  // MCP tool names are prefixed with the server name (e.g. chrome-devtools_navigate_page).
+  "tools": {
+    "chrome-devtools*": false,
+    "playwright*": false
   },
   "agent": {
     // Primary agent — full tool access
@@ -175,6 +198,75 @@
           "*": "deny",
           "code-review": "allow",
           "review": "allow"
+        }
+      }
+    },
+    // UI implementation worker — web (React) + mobile (Expo/React Native).
+    // Owns browser MCP tools (chrome-devtools + playwright) for live UI work.
+    // Spawns ui-reviewer to audit its own output before reporting done.
+    "ui-impl-worker": {
+      "description": "Web/mobile UI implementation worker - React web + Expo/React Native, drives real browsers to build and verify UI",
+      "mode": "subagent",
+      "steps": 100,
+      "model": "litellm/agentic",
+      "temperature": 0.2,
+      "prompt": "{file:./.opencode/prompts/ui-impl-worker-instructions.md}",
+      // Browser MCPs re-enabled here (hidden globally via top-level "tools").
+      "tools": {
+        "chrome-devtools*": true,
+        "playwright*": true
+      },
+      "permission": {
+        "edit": "allow",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
+        "task": {
+          "*": "deny",
+          "ui-reviewer": "allow",
+          "explore": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "frontend-impl": "allow",
+          "mobile-impl": "allow",
+          "tdd": "allow",
+          "task-breakdown": "allow",
+          "code-review": "allow"
+        }
+      }
+    },
+    // UI/UX reviewer — audits UI/UX quality. Read-only on code, but has browser
+    // MCPs to take screenshots and inspect the live app. Spawned by ui-impl-worker.
+    "ui-reviewer": {
+      "description": "UI/UX reviewer - audits visual design, accessibility, and responsive behavior of web/mobile UI",
+      "mode": "subagent",
+      "steps": 50,
+      "model": "litellm/agentic",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/prompts/ui-reviewer-instructions.md}",
+      "tools": {
+        "chrome-devtools*": true,
+        "playwright*": true
+      },
+      "permission": {
+        "edit": "deny",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny",
+          "explore": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "code-review": "allow"
         }
       }
     },
@@ -390,6 +482,42 @@
         }
       }
     },
+    // Independent review gate — reviews spec, subspec, and code against loaded standards.
+    // Loads different standards files based on the target (spec/subspec/code).
+    // Runs in a fresh context (LPM-004). Never edits — reports findings only.
+    "reviewer": {
+      "description": "Independent review gate - reviews spec/subspec/code against standards, reports findings by severity",
+      "mode": "subagent",
+      "steps": 60,
+      "model": "litellm/agentic",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/prompts/reviewer-instructions.md}",
+      "tools": {
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "edit": false,
+        "write": true,
+        "bash": true
+      },
+      "permission": {
+        "edit": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "write": "allow",
+        "bash": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny",
+          "explore": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "code-review": "allow"
+        }
+      }
+    },
     // Orchestrator agent — local model (medium reasoning), drives the lifecycle state machine, never implements
     "autopilot": {
       "description": "Orchestrator agent - drives the OpenSpec lifecycle state machine, delegates every phase, never implements",
@@ -403,7 +531,9 @@
           "*": "deny",
           "architect": "allow",
           "designer": "allow",
+          "reviewer": "allow",
           "impl-worker": "allow",
+          "ui-impl-worker": "allow",
           "verifier": "allow",
           "explore": "allow",
           "websearcher": "allow",
@@ -419,6 +549,11 @@
      "edit": "allow",
      "question": "allow",
      "external_directory": "allow",
+     // .tmp scratch space — writable by every agent/subagent, even those that
+     // narrow their own edit/write permission. Covers write + edit + patch to .tmp/**.
+     "write": {
+       ".tmp/**": "allow"
+     },
      "bash": {
        "*": "allow",
        "git push*": "ask",

@@ -9,7 +9,10 @@ This table applies to the **main agent** (`build`) for interactive use. Subagent
 | OpenSpec feature change (spec → build → verify) | `autopilot` | Full lifecycle orchestration |
 | Spec-only (write/revise specs, no implementation) | `architect` | OpenSpec spec phase |
 | Design-only (break spec into tasks) | `designer` | OpenSpec design phase |
-| Implementation (write code, run tests) | `impl-worker` | OpenSpec implementation + TDD |
+| Review (spec, subspec, or code) | `reviewer` | Independent review gate; loads standards by target |
+| Implementation (write code, run tests) | `impl-worker` | OpenSpec implementation + TDD (backend/general) |
+| UI implementation (React web / Expo-RN mobile) | `ui-impl-worker` | Browser-driven UI build + verify |
+| UI/UX review (visual, a11y, responsive) | `ui-reviewer` | Spawned by `ui-impl-worker`; independent UI gate |
 | Verification (run tests, review against spec) | `verifier` | OpenSpec verification gate |
 | Bug investigation / root-cause analysis | `debugger` | Systematic hypothesis → reproduce → fix |
 | Read-only code exploration | `explore` | Fast read-only investigation |
@@ -21,6 +24,8 @@ This table applies to the **main agent** (`build`) for interactive use. Subagent
 ## Notes
 
 - **`impl-worker-cheap`** is hidden — only `impl-worker` spawns it. Do not spawn directly.
+- **`ui-impl-worker`** is the UI counterpart of `impl-worker` (web + mobile). It is the only agent (with `ui-reviewer`) that holds the browser MCP tools (`chrome-devtools*`, `playwright*`) — they are hidden globally and re-enabled per agent.
+- **`ui-reviewer`** is read-only on code but has browser access to visually audit the live app. `ui-impl-worker` spawns it; it should not be spawned for non-UI work.
 - **`verifier`** is OpenSpec-scoped (checks against `openspec/changes/<slug>/specs/`). For standalone code review, use `code-reviewer`.
 - **`websearcher`** is the only agent with web access. It treats all web content as untrusted data.
 - **`autopilot`** has its own fixed phase routing (`.opencode/autopilot/03-delegation.md`) — do not re-route.
