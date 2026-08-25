@@ -34,6 +34,37 @@ const SCRIPT_DIR = dirname(__filename);
 const CONFIG_ROOT = resolve(SCRIPT_DIR, "..");
 const REPO_ROOT = resolve(SCRIPT_DIR, "..", "..");
 const IS_WIN = process.platform === "win32";
+const args = process.argv.slice(2);
+
+// Windows: re-execute elevated if file symlinks are needed and we lack SeCreateSymbolicLinkPrivilege.
+// Skipped for --remove, --env-var-only, --dry-run (read-only / no privilege needed).
+if (
+  IS_WIN &&
+  !args.includes("--elevated") &&
+  !args.includes("--remove") &&
+  !args.includes("--env-var-only") &&
+  !args.includes("--dry-run")
+) {
+  const testDir = join(tmpdir(), "oc_setup_symlink_test_" + process.pid);
+  const testLink = join(testDir, "test.lnk");
+  let needElevate = false;
+  try {
+    mkdirSync(testDir, { recursive: true });
+    symlinkSync("dummy", testLink, "file");
+  } catch {
+    needElevate = true;
+  } finally {
+    try { rmSync(testDir, { recursive: true, force: true }); } catch { /* ignore */ }
+  }
+  if (needElevate) {
+    const scriptPath = __filename;
+    const allArgs = [scriptPath, ...process.argv.slice(2), "--elevated"].map((a) => a.replace(/"/g, '`"')).join(" ");
+    const psCmd = `Start-Process -FilePath 'node' -ArgumentList '${allArgs}' -Verb RunAs -Wait`;
+    console.log("[setup] Requesting elevation for file symlinks...");
+    const elevated = spawnSync("powershell", ["-NoProfile", "-Command", psCmd], { stdio: "inherit" });
+    process.exit(elevated.status ?? 1);
+  }
+}
 
 // [target, link, isDir]
 // All entries are single-source-of-truth links into the parent repo: edits to
@@ -45,7 +76,6 @@ const LINKS = [
   [join(CONFIG_ROOT, ".agents"), join(REPO_ROOT, ".agents"), true],
 ];
 
-const args = process.argv.slice(2);
 const DO_REMOVE = args.includes("--remove");
 const ENV_VAR_ONLY = args.includes("--env-var-only");
 const SKIP_RTK = args.includes("--skip-rtk");
@@ -186,12 +216,13 @@ function makeLink(target, link, isDir) {
           }
         }
       }
-      // File: hardlink (same volume, no privilege) first, then symlink
+      // File: file symlink (no admin needed on Windows 10+ with Developer Mode),
+      // then plain mklink fallback.
       try {
-        linkSync(target, link);
-        return ok("Hardlink");
+        symlinkSync(target, link, "file");
+        return ok("Symlink");
       } catch (e) {
-        return mklinkFallback(link, target, [[], ["H"]], "Symlink/Hardlink");
+        return mklinkFallback(link, target, [[]], "Symlink");
       }
     }
     // POSIX
