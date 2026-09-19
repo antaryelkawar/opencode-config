@@ -8,7 +8,7 @@ audience: all agents + artifact producers
 How to structure artifacts (specs, designs, tasks) so each agent in the loop gets exactly what it needs without redundant context.
 
 ## CTX-001: Role-scoped context
-Each agent in the pipeline MUST receive exactly the artifacts its role requires — no more: the architect gets intent + constraints + relevant existing specs; the designer gets the approved spec; the implementer gets spec + design + its assigned tasks; the verifier gets spec + diff + test output. Full conversation history from other agents MUST NOT be passed downstream.
+Each agent in the pipeline MUST receive exactly the artifacts its role requires — no more: the architect gets intent + constraints + relevant existing specs; the designer gets the approved spec; the implementer gets spec + design + its assigned tasks; the reviewer gets spec + diff + test output. Full conversation history from other agents MUST NOT be passed downstream.
 **Anti-pattern:** Pasting the entire 40-message architect chat into the implementer's prompt.
 
 ## CTX-002: Files over chat

@@ -26,26 +26,9 @@ Skills are loaded from `.agents/skills/` and `.opencode/skills/` in the opencode
 
 ## Agent roster
 
-Agents live in `opencode.jsonc` (`agent` block) with their prompts in `.opencode/prompts/`. Full routing table: `.opencode/prompts/subagent-routing.md`. The **`build`** agent is the interactive primary; **`plan`** is the read-only default.
+Agents live in `opencode.jsonc` (`agent` block) with their prompts in `.opencode/prompts/`. The **`build`** agent is the interactive primary; **`plan`** is the read-only default. The full routing table and per-agent notes live in `.opencode/prompts/subagent-routing.md` (single source of truth — do not duplicate it here).
 
-| Agent | Mode | Role |
-|---|---|---|
-| `build` | primary | Main dev agent, full tools |
-| `plan` | primary | Read-only planning (default agent) |
-| `general` | subagent | Fallback multi-step |
-| `explore` | subagent | Fast read-only code analysis |
-| `architect` | subagent | OpenSpec spec phase |
-| `designer` | subagent | OpenSpec design phase (tags tasks `[ui]`/`[backend]`) |
-| `impl-worker` | subagent | Backend/general implementation orchestrator |
-| `impl-worker-cheap` | subagent (hidden) | Single-task executor under `impl-worker` |
-| `ui-impl-worker` | subagent | Web (React) + mobile (Expo/RN) UI build + browser verify |
-| `ui-reviewer` | subagent | UI/UX gate (visual, a11y, responsive) — spawned by `ui-impl-worker` |
-| `verifier` | subagent | OpenSpec verification gate |
-| `debugger` | subagent | Root-cause analysis |
-| `websearcher` | subagent | External web research (only agent with web access) |
-| `code-reviewer` | subagent | Static code review |
-| `docs-writer` | subagent | Documentation |
-| `autopilot` | primary | OpenSpec lifecycle orchestrator (delegates every phase) |
+`impl-worker-cheap` and `architect-cheap` are hidden internal agents. `impl-worker-cheap` is spawned only by `impl-worker`; `architect-cheap` is the local-model fallback spawned only by `autopilot` when `architect` is rate-limited.
 
 ## Browser MCP scoping (UI agents only)
 

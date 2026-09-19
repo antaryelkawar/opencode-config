@@ -11,6 +11,7 @@ export const SessionAffinityOpenCodePlugin: Plugin = async () => {
       const agentSessionId = input.agent ? `${input.agent}-${sessionId}` : sessionId
       output.headers["X-Session-Id"] = sessionId
       output.headers["X-LiteLLM-Session-Id"] = agentSessionId
+      output.headers["x-opencode-session"] = agentSessionId
     },
   }
 }

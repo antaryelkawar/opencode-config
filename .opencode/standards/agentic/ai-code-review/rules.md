@@ -1,6 +1,6 @@
 ---
 scope: review-of-ai-generated-code
-audience: code-reviewer, verifier, reviewer
+audience: code-reviewer, reviewer
 ---
 
 # Review Criteria for AI-Generated Code

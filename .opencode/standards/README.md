@@ -71,12 +71,12 @@ Rules for AI-driven coding loops: token efficiency, loop convergence, agentic au
 | File | Description | Loaded by |
 |---|---|---|
 | `agentic/token-efficiency/rules.md` | Instruction/tool/delegation token discipline (TKN-*) | all agents |
-| `agentic/loop-engineering/rules.md` | Generate→review→fix convergence (LPM-*) | orchestrator, impl-worker, verifier, reviewer |
+| `agentic/loop-engineering/rules.md` | Generate→review→fix convergence (LPM-*) | orchestrator, impl-worker, reviewer |
 | `agentic/agentic-coding/rules.md` | AI as author/reviewer patterns (AGC-*) | impl-worker, code-reviewer, reviewer |
 | `agentic/spec-quality/rules.md` | Specs AI can implement without drift (SPX-*) | architect, designer, reviewer |
-| `agentic/ai-code-review/rules.md` | Reviewing AI-generated code (RCR-*) | code-reviewer, verifier, reviewer |
+| `agentic/ai-code-review/rules.md` | Reviewing AI-generated code (RCR-*) | code-reviewer, reviewer |
 | `agentic/context-management/rules.md` | Artifact structure & handoff (CTX-*) | all agents |
-| `agentic/failure-modes/rules.md` | Loop failure taxonomy — detection + prevention (FM-*) | verifier, debugger, orchestrator |
+| `agentic/failure-modes/rules.md` | Loop failure taxonomy — detection + prevention (FM-*) | debugger, reviewer, orchestrator |
 
 ## Usage
 

@@ -32,6 +32,8 @@ Each call takes `slug` (all ops) plus the op-specific args shown below (`to`, `t
 
 ## 1. SPEC — dispatch `architect`
 
+If `architect` is unavailable (rate-limited / no response), re-dispatch SPEC to `architect-cheap` (same prompt, local model). Never skip the SPEC phase.
+
 Scope: the user's request + change slug. The architect creates the change (`openspec new`) and writes `proposal.md` + delta specs (requirements with testable scenarios).
 
 On return: `autopilot_state {op: check, target: plan, id: spec, checked: true, label: "spec finished"}` then `autopilot_state {op: transition, to: REVIEW-SPEC}`.

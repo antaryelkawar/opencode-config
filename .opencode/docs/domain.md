@@ -49,3 +49,21 @@ If the concept you need isn't in the glossary yet, that's a signal — either yo
 If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
 
 > _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_
+
+## Payload scalar-lift rule (ADR-0001)
+
+Any payload field used in a `WHERE`, `ORDER BY`, or join condition SHALL be
+lifted to a real scalar column (or a dedicated derived/lookup table) at write
+time. Range predicates, ordering, or filtering MUST be served by the lifted
+scalar column. The system SHALL NOT rely on GIN `jsonb_path_ops` containment
+indexes to serve ordering or range predicates -- GIN is for containment lookups
+only. Scalar columns SHALL be maintained by the same write path/accessor that
+mutates the payload, kept consistent within the same transaction/write, and
+backed by table-level btree indexes for the ordering/range queries.
+
+Canonical examples (the guard-test fixtures):
+
+- BAD / must-lift: `payload #>> '{data,warranty_end}' AND $1::timestamptz` (a JSONB extraction cast in a filter predicate -- lift to e.g. `warranty_end timestamptz`).
+- GOOD / lifted: `ORDER BY asset_category, warranty_end` (real lifted scalar columns, backed by a btree index).
+
+Full decision record: `docs/adr/0001-scalar-lift.md`.

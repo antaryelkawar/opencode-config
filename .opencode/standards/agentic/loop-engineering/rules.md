@@ -1,6 +1,6 @@
 ---
 scope: agent-loop-orchestration
-audience: loop orchestrator, impl-worker, verifier, reviewer
+audience: loop orchestrator, impl-worker, reviewer
 ---
 
 # Loop Engineering

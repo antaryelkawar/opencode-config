@@ -4,7 +4,7 @@
 
 | Phase | Subagent |
 |-------|----------|
-| SPEC | `architect` |
+| SPEC | `architect` (→ `architect-cheap` if rate-limited) |
 | REVIEW(SPEC) | `reviewer` (target: spec) |
 | SUBSPEC | `designer` |
 | REVIEW(SUBSPEC) | `reviewer` (target: subspec) |
@@ -15,7 +15,7 @@
 
 **APPLY → APPLY-UI selection.** A task is UI work (→ `ui-impl-worker`) when its spec/design scope is user-facing: web screens, components, styling, responsive behavior, or mobile (React Native/Expo) UI. Backend/API/data-layer work stays `impl-worker`. The designer tags each task in tasks.md with `[ui]` or `[backend]` so this is a lookup, not a guess. If a task mixes both, split it (UI slice → `ui-impl-worker`, backend slice → `impl-worker`).
 
-If an APPLY task is clearly outside implementation (e.g. "investigate library X"), the impl-worker routes it internally (it may dispatch `explore`/`general`). The autopilot does not re-route.
+If an APPLY task is clearly outside implementation (e.g. "investigate library X"), the impl-worker routes it internally (it may dispatch `explore-cheap`/`general`). The autopilot does not re-route.
 
 ## Prompt Format — scope + autopilot-specific actions ONLY
 

@@ -18,54 +18,60 @@
       "models": {
         "reasoning":      { "name": "Reasoning" },
         "design":         { "name": "Design" },
-        "agentic": {
-          "name": "Agentic",
-          "variants": {
-            "low": { "reasoningEffort": "low" }
-          }
-        },
+        "agentic":        { "name": "Agentic" },
         "agentic-free":   { "name": "Agentic Free" },
         "generalist":     { "name": "Generalist" },
+        "generalist-mimo": { "name": "Generalist MiMo" },
         "speed":          { "name": "Speed" },
         "speed-cheapest": { "name": "Speed Cheapest" },
-        "local": {
-          "name": "Local",
+        "local-fast": {
+          "name": "Local Fast",
+          "options": {
+            "chat_template_kwargs": { "enable_thinking": false }
+          },
           "variants": {
-            "none":   { "reasoningEffort": "none" },
-            "low":    { "reasoningEffort": "low" },
-            "medium": { "reasoningEffort": "medium" },
-            "high":   { "reasoningEffort": "high" }
+            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
+            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
+            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
+            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
+          }
+        },
+        "local-quality": {
+          "name": "Local Quality",
+          "options": {
+            "chat_template_kwargs": { "enable_thinking": false }
+          },
+          "variants": {
+            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
+            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
+            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
+            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
           }
         }
       }
     },
-    "local-direct": {
+    "local-fast": {
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "http://localhost:8090/v1",
+        "baseURL": "http://192.168.1.39:8090/v1",
         "apiKey": "not-needed"
       },
       "models": {
         "default": {
-          "name": "Local Direct",
+          "name": "Local Fast Direct",
+          "options": {
+            "chat_template_kwargs": { "enable_thinking": false }
+          },
           "variants": {
-            "none": {
-              "reasoningEffort": "none"
-            },
-            "low": {
-              "reasoningEffort": "low"
-            },
-            "medium": {
-              "reasoningEffort": "medium"
-            },
-            "xhigh": {
-              "reasoningEffort": "xhigh"
-            }
+            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
+            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
+            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
+            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
           }
         }
       }
     },
-    "tower": {
+    "local-quality": {
       "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "http://192.168.1.103:11234/v1",
@@ -73,20 +79,15 @@
       },
       "models": {
         "qwen3.8:27b": {
-          "name": "Qwen3.8 27B",
+          "name": "Local Quality Direct",
+          "options": {
+            "chat_template_kwargs": { "enable_thinking": false }
+          },
           "variants": {
-            "none": {
-              "reasoningEffort": "none"
-            },
-            "low": {
-              "reasoningEffort": "low"
-            },
-            "medium": {
-              "reasoningEffort": "medium"
-            },
-            "xhigh": {
-              "reasoningEffort": "xhigh"
-            }
+            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
+            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
+            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
+            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
           }
         }
       }
@@ -177,6 +178,29 @@
         }
       }
     },
+    // Cheap exploration subagent — local-fast, read-only, spawned by impl-worker/ui-impl-worker instead of the remote `explore`
+    "explore-cheap": {
+      "description": "Cheap exploration agent - local-fast read-only code analysis, spawned by orchestrators",
+      "mode": "subagent",
+      "hidden": true,
+      "steps": 75,
+      "model": "litellm/local-fast",
+      "variant": "none",
+      "prompt": "{file:./.opencode/prompts/explore-instructions.md}",
+      "tools": {
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "write": true
+      },
+      "permission": {
+        "question": "allow",
+        "skill": {
+          "*": "deny",
+          "zoom-out": "allow"
+        }
+      }
+    },
     // Code quality review subagent
     "code-reviewer": {
       "description": "Code review agent - analyzes code quality and suggests improvements",
@@ -213,7 +237,7 @@
       "description": "Web/mobile UI implementation worker - React web + Expo/React Native, drives real browsers to build and verify UI",
       "mode": "subagent",
       "steps": 100,
-      "model": "litellm/local",
+      "model": "litellm/local-quality",
       "variant": "low",
       "temperature": 0.2,
       "prompt": "{file:./.opencode/prompts/ui-impl-worker-instructions.md}",
@@ -234,7 +258,8 @@
         "task": {
           "*": "deny",
           "ui-reviewer": "allow",
-          "explore": "allow"
+          "ui-impl-worker-cheap": "allow",
+          "explore-cheap": "allow"
         },
         "skill": {
           "*": "deny",
@@ -246,13 +271,43 @@
         }
       }
     },
+    // Cheap UI implementation worker — local-fast (no thinking), executes single UI chunks under ui-impl-worker supervision
+    "ui-impl-worker-cheap": {
+      "description": "Cheap UI implementation worker - executes single atomic UI chunks under supervision",
+      "mode": "subagent",
+      "hidden": true,
+      "steps": 75,
+      "model": "litellm/local-fast",
+      "variant": "none",
+      "temperature": 0.3,
+      "prompt": "{file:./.opencode/prompts/ui-impl-worker-cheap-instructions.md}",
+      "tools": {
+        "chrome-devtools*": true,
+        "playwright*": true
+      },
+      "permission": {
+        "edit": "allow",
+        "read": "allow",
+        "write": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "webfetch": "allow",
+        "skill": {
+          "*": "deny",
+          "frontend-impl": "allow",
+          "mobile-impl": "allow",
+          "tdd": "allow"
+        }
+      }
+    },
     // UI/UX reviewer — audits UI/UX quality. Read-only on code, but has browser
     // MCPs to take screenshots and inspect the live app. Spawned by ui-impl-worker.
     "ui-reviewer": {
       "description": "UI/UX reviewer - audits visual design, accessibility, and responsive behavior of web/mobile UI",
       "mode": "subagent",
       "steps": 50,
-      "model": "litellm/agentic",
+      "model": "litellm/local-quality",
       "temperature": 0.1,
       "prompt": "{file:./.opencode/prompts/ui-reviewer-instructions.md}",
       "tools": {
@@ -330,6 +385,38 @@
         }
       }
     },
+    // Local-model fallback for architect — same prompt, used when `architect` (litellm/design) is rate-limited
+    "architect-cheap": {
+      "description": "Local-model architect fallback - same prompt as architect, used when architect is rate-limited",
+      "mode": "subagent",
+      "hidden": true,
+      "steps": 75,
+      "model": "litellm/local-quality",
+      "variant": "medium",
+      "prompt": "{file:./.opencode/prompts/architect-instructions.md}",
+      "permission": {
+        "edit": "ask",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny",
+          "explore": "allow",
+          "websearcher": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "improve-codebase-architecture": "allow",
+          "planner": "allow",
+          "spec-writer": "allow",
+          "openspec-new-change": "allow",
+          "openspec-propose": "allow",
+          "openspec-ff-change": "allow",
+          "openspec-continue-change": "allow"
+        }
+      }
+    },
     // Root-cause debugger subagent
     "debugger": {
       "description": "Root cause analyst - isolates and fixes bugs",
@@ -360,7 +447,7 @@
       "description": "Web researcher - external research via web search/fetch, hardened against prompt injection",
       "mode": "subagent",
       "steps": 30,
-      "model": "litellm/speed-cheapest",
+      "model": "litellm/speed",
       "prompt": "{file:./.opencode/prompts/websearcher-instructions.md}",
       "permission": {
         "edit": "deny",
@@ -376,12 +463,12 @@
         }
       }
     },
-    // Implementation orchestrator — local model (low reasoning), delegates to impl-worker-cheap, audits results
+    // Implementation orchestrator — local-quality (no thinking), delegates to explore-cheap + impl-worker-cheap + review-cheap, audits results
     "impl-worker": {
-      "description": "Implementation orchestrator - breaks work into chunks, delegates to cheap workers, audits results",
+      "description": "Implementation orchestrator - delegates to cheap workers, audits results, only implements one-liners directly",
       "mode": "subagent",
       "steps": 100,
-      "model": "litellm/local",
+      "model": "litellm/local-quality",
       "variant": "low",
       "temperature": 0.1,
       "prompt": "{file:./.opencode/prompts/impl-worker-instructions.md}",
@@ -397,7 +484,9 @@
         "task": {
           "*": "deny",
           "impl-worker-cheap": "allow",
-          "explore": "allow",
+          "explore-cheap": "allow",
+          "review-cheap": "allow",
+          "ui-impl-worker": "allow",
           "general": "allow"
         },
         "skill": {
@@ -409,13 +498,13 @@
         }
       }
     },
-    // Cheap implementation worker — local model (no reasoning), executes single tasks under impl-worker supervision
+    // Cheap implementation worker — local-fast (no thinking), executes single atomic tasks under impl-worker supervision
     "impl-worker-cheap": {
       "description": "Cheap implementation worker - executes single atomic tasks under supervision",
       "mode": "subagent",
       "hidden": true,
-      "steps": 50,
-      "model": "litellm/local",
+      "steps": 75,
+      "model": "litellm/local-fast",
       "variant": "none",
       "temperature": 0.3,
       "prompt": "{file:./.opencode/prompts/impl-worker-cheap-instructions.md}",
@@ -461,33 +550,6 @@
         }
       }
     },
-    // Verification gate — runs tests, reviews against spec, writes verdict. Never edits code.
-    "verifier": {
-      "description": "Verification gate - runs tests, reviews code against spec, writes verdict report",
-      "mode": "subagent",
-      "steps": 100,
-      "model": "litellm/agentic",
-      "temperature": 0.1,
-      "prompt": "{file:./.opencode/prompts/verifier-instructions.md}",
-      "permission": {
-        "edit": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "write": "allow",
-        "question": "allow",
-        "task": {
-          "*": "deny",
-          "explore": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "code-review": "allow",
-          "review": "allow",
-          "openspec-verify-change": "allow"
-        }
-      }
-    },
     // Independent review gate — reviews spec, subspec, and code against loaded standards.
     // Loads different standards files based on the target (spec/subspec/code).
     // Runs in a fresh context (LPM-004). Never edits — reports findings only.
@@ -520,37 +582,74 @@
         },
         "skill": {
           "*": "deny",
-          "code-review": "allow"
+          "code-review": "allow",
+          "review": "allow",
+          "openspec-verify-change": "allow"
         }
       }
     },
-    // Orchestrator agent — local model (medium reasoning), drives the lifecycle state machine, never implements
+    // Cheap review subagent — local-fast, read-only code review, spawned by impl-worker instead of the remote `reviewer`
+    "review-cheap": {
+      "description": "Cheap review agent - local-fast code review, spawned by impl-worker",
+      "mode": "subagent",
+      "hidden": true,
+      "steps": 75,
+      "model": "litellm/local-fast",
+      "variant": "none",
+      "temperature": 0.1,
+      "prompt": "{file:./.opencode/prompts/reviewer-instructions.md}",
+      "tools": {
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "edit": false,
+        "write": true,
+        "bash": true
+      },
+      "permission": {
+        "edit": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "write": "allow",
+        "bash": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny"
+        },
+        "skill": {
+          "*": "deny",
+          "code-review": "allow",
+          "review": "allow"
+        }
+      }
+    },
+    // Orchestrator agent — local-fast (medium reasoning), drives the lifecycle state machine, never implements
     "autopilot": {
       "description": "Orchestrator agent - drives the OpenSpec lifecycle state machine, delegates every phase, never implements",
-      "model": "litellm/local",
+      "model": "litellm/local-fast",
       "variant": "medium",
       "color": "#00BFFF",
       "prompt": "{file:./.opencode/prompts/autopilot-instructions.md}",
       "permission": {
-        "edit": {
-          "*": "allow",
-          ".autopilot/**/state.json": "deny"
-        },
-        "write": {
-          "*": "allow",
-          ".autopilot/**/state.json": "deny"
-        },
+        "edit": "allow",
         "task": {
           "*": "deny",
           "architect": "allow",
+          "architect-cheap": "allow",
           "designer": "allow",
           "reviewer": "allow",
+          "review-cheap": "allow",
           "impl-worker": "allow",
           "ui-impl-worker": "allow",
-          "verifier": "allow",
+          "ui-reviewer": "allow",
           "explore": "allow",
+          "explore-cheap": "allow",
           "websearcher": "allow",
-          "general": "allow"
+          "general": "allow",
+          "code-reviewer": "allow",
+          "debugger": "allow",
+          "docs-writer": "allow"
         }
       }
     }
@@ -559,18 +658,13 @@
   "subagent_depth": 3,
   // Common permissions — apply to ALL agents unless overridden per agent
    "permission": {
-     "edit": {
-       "*": "allow",
-       // State run-records are owned by the autopilot_state tool — never hand-edited.
-       ".autopilot/**/state.json": "deny"
-     },
+     "edit": "allow",
      "question": "allow",
      "external_directory": "allow",
      // .tmp scratch space — writable by every agent/subagent, even those that
      // narrow their own edit/write permission. Covers write + edit + patch to .tmp/**.
      "write": {
-       ".tmp/**": "allow",
-       ".autopilot/**/state.json": "deny"
+       ".tmp/**": "allow"
      },
      "bash": {
        "*": "allow",

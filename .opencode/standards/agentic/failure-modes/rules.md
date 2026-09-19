@@ -1,6 +1,6 @@
 ---
 scope: loop-diagnostics
-audience: verifier, debugger, loop orchestrator (detection + prevention reference, NOT an author rulebook)
+audience: reviewer, debugger, loop orchestrator (detection + prevention reference, NOT an author rulebook)
 ---
 
 # Failure Mode Taxonomy
@@ -15,7 +15,7 @@ Common ways AI coding loops fail. Each entry: definition, detection signal, and 
 ## FM-002: Drift
 **Definition:** Implementation progressively departs from spec/design (scope creep, feature substitution) while each individual step looks plausible.
 **Detection:** Periodic end-state check against requirement IDs fails; code contains behavior the spec never stated; spec requirements with no code.
-**Standard:** The verifier MUST check the implementation against spec requirement IDs (end-state evaluation, LPM-010); specs MUST carry explicit non-goals (SPX-003); reviews MUST map findings to requirement IDs (AGC-010).
+**Standard:** The reviewer MUST check the implementation against spec requirement IDs (end-state evaluation, LPM-010); specs MUST carry explicit non-goals (SPX-003); reviews MUST map findings to requirement IDs (AGC-010).
 
 ## FM-003: Over-correction
 **Definition:** Each review round adds more code (abstractions, defensive handling, speculative tests) than it removes; the codebase grows while the spec stays the same.
@@ -50,7 +50,7 @@ Common ways AI coding loops fail. Each entry: definition, detection signal, and 
 ## FM-009: Self-confirmation (premature success)
 **Definition:** The agent concludes success without external verification — tests not run, output not checked, claims unbacked.
 **Detection:** 'Done' with no check output in the transcript; the check exists but was run before the last edit.
-**Standard:** Completion MUST require a machine check executed after the last change (LPM-002, LPM-003); evidence MUST be present in the transcript (RCR-013); an independent verifier MUST re-run the check (LPM-004).
+**Standard:** Completion MUST require a machine check executed after the last change (LPM-002, LPM-003); evidence MUST be present in the transcript (RCR-013); an independent reviewer MUST re-run the check (LPM-004).
 
 ## FM-010: Conflicting parallel decisions
 **Definition:** Parallel agents make incompatible decisions about shared state (naming, interfaces, formats, shared files) and integration fails.
