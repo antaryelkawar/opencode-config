@@ -12,13 +12,18 @@
   "provider": {
     "litellm": {
       "options": {
-        "baseURL": "http://192.168.1.103:8787/v1",
+        "baseURL": "http://192.168.1.103:4000/v1",
         "apiKey": "sk-litellm-master-key"
       },
       "models": {
         "reasoning":      { "name": "Reasoning" },
         "design":         { "name": "Design" },
-        "agentic":        { "name": "Agentic" },
+        "agentic": {
+          "name": "Agentic",
+          "variants": {
+            "low": { "reasoningEffort": "low" }
+          }
+        },
         "agentic-free":   { "name": "Agentic Free" },
         "generalist":     { "name": "Generalist" },
         "speed":          { "name": "Speed" },
@@ -208,7 +213,8 @@
       "description": "Web/mobile UI implementation worker - React web + Expo/React Native, drives real browsers to build and verify UI",
       "mode": "subagent",
       "steps": 100,
-      "model": "litellm/agentic",
+      "model": "litellm/local",
+      "variant": "low",
       "temperature": 0.2,
       "prompt": "{file:./.opencode/prompts/ui-impl-worker-instructions.md}",
       // Browser MCPs re-enabled here (hidden globally via top-level "tools").
@@ -526,7 +532,14 @@
       "color": "#00BFFF",
       "prompt": "{file:./.opencode/prompts/autopilot-instructions.md}",
       "permission": {
-        "edit": "allow",
+        "edit": {
+          "*": "allow",
+          ".autopilot/**/state.json": "deny"
+        },
+        "write": {
+          "*": "allow",
+          ".autopilot/**/state.json": "deny"
+        },
         "task": {
           "*": "deny",
           "architect": "allow",
@@ -546,13 +559,18 @@
   "subagent_depth": 3,
   // Common permissions — apply to ALL agents unless overridden per agent
    "permission": {
-     "edit": "allow",
+     "edit": {
+       "*": "allow",
+       // State run-records are owned by the autopilot_state tool — never hand-edited.
+       ".autopilot/**/state.json": "deny"
+     },
      "question": "allow",
      "external_directory": "allow",
      // .tmp scratch space — writable by every agent/subagent, even those that
      // narrow their own edit/write permission. Covers write + edit + patch to .tmp/**.
      "write": {
-       ".tmp/**": "allow"
+       ".tmp/**": "allow",
+       ".autopilot/**/state.json": "deny"
      },
      "bash": {
        "*": "allow",

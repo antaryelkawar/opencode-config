@@ -6,4 +6,4 @@
 - Everything in `.tmp/` is disposable. Never put source, config, or deliverables there.
 - Never commit `.tmp/` contents.
 
-Autopilot run state lives in `.autopilot/change-<slug>/` (state.md + per-phase reports). Also scratch, never committed.
+Autopilot run state lives in `.autopilot/change-<slug>/` (state.json + per-phase reports). Also scratch, never committed.

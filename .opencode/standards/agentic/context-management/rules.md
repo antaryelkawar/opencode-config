@@ -20,7 +20,7 @@ Subagent reports back to the orchestrator MUST be bounded summaries (target: und
 **Anti-pattern:** A research subagent returns 30k tokens of raw search results to the orchestrator.
 
 ## CTX-004: Durable state in files
-Cross-agent and cross-session state MUST live in structured, updatable files (task lists with checkboxes, state.md, spec deltas) that survive compaction and session restarts; conversation history MUST NOT be the sole store of state.
+Cross-agent and cross-session state MUST live in structured, updatable files (task lists with checkboxes, state.json, spec deltas) that survive compaction and session restarts; conversation history MUST NOT be the sole store of state.
 **Anti-pattern:** 'Don't forget to update the migration' exists only in message 47.
 
 ## CTX-005: Addressable by ID
