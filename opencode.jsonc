@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  // litellm provider config
   "model": "litellm/agentic",
   "small_model": "litellm/speed",
   "shell": "powershell",
@@ -13,39 +12,100 @@
     "litellm": {
       "options": {
         "baseURL": "http://192.168.1.103:4000/v1",
-        "apiKey": "sk-litellm-master-key"
+        "apiKey": "sk-litellm-master-key",
+        "timeout": 600000,
+        "headerTimeout": 600000,
+        "retries": 12
       },
       "models": {
-        "reasoning":      { "name": "Reasoning" },
-        "design":         { "name": "Design" },
-        "agentic":        { "name": "Agentic" },
-        "agentic-free":   { "name": "Agentic Free" },
-        "generalist":     { "name": "Generalist" },
-        "generalist-mimo": { "name": "Generalist MiMo" },
-        "speed":          { "name": "Speed" },
-        "speed-cheapest": { "name": "Speed Cheapest" },
+        "reasoning": {
+          "name": "Reasoning"
+        },
+        "design": {
+          "name": "Design"
+        },
+        "agentic": {
+          "name": "Agentic"
+        },
+        "agentic-free": {
+          "name": "Agentic Free"
+        },
+        "generalist": {
+          "name": "Generalist"
+        },
+        "generalist-mimo": {
+          "name": "Generalist MiMo"
+        },
+        "speed": {
+          "name": "Speed"
+        },
+        "speed-cheapest": {
+          "name": "Speed Cheapest"
+        },
         "local-fast": {
           "name": "Local Fast",
           "options": {
-            "chat_template_kwargs": { "enable_thinking": false }
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            }
           },
           "variants": {
-            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
-            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
-            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
-            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
+            "none": {
+              "chat_template_kwargs": {
+                "enable_thinking": false
+              }
+            },
+            "low": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "low"
+              }
+            },
+            "medium": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "medium"
+              }
+            },
+            "high": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "xhigh"
+              }
+            }
           }
         },
         "local-quality": {
           "name": "Local Quality",
           "options": {
-            "chat_template_kwargs": { "enable_thinking": false }
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            }
           },
           "variants": {
-            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
-            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
-            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
-            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
+            "none": {
+              "chat_template_kwargs": {
+                "enable_thinking": false
+              }
+            },
+            "low": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "low"
+              }
+            },
+            "medium": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "medium"
+              }
+            },
+            "high": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "xhigh"
+              }
+            }
           }
         }
       }
@@ -54,19 +114,43 @@
       "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "http://192.168.1.39:8090/v1",
-        "apiKey": "not-needed"
+        "apiKey": "not-needed",
+        "timeout": 600000,
+        "headerTimeout": 600000,
+        "retries": 12
       },
       "models": {
         "default": {
           "name": "Local Fast Direct",
           "options": {
-            "chat_template_kwargs": { "enable_thinking": false }
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            }
           },
           "variants": {
-            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
-            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
-            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
-            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
+            "none": {
+              "chat_template_kwargs": {
+                "enable_thinking": false
+              }
+            },
+            "low": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "low"
+              }
+            },
+            "medium": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "medium"
+              }
+            },
+            "high": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "xhigh"
+              }
+            }
           }
         }
       }
@@ -75,63 +159,96 @@
       "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "http://192.168.1.103:11234/v1",
-        "apiKey": "not-needed"
+        "apiKey": "not-needed",
+        "timeout": 600000,
+        "headerTimeout": 600000,
+        "retries": 12
       },
       "models": {
         "qwen3.8:27b": {
           "name": "Local Quality Direct",
           "options": {
-            "chat_template_kwargs": { "enable_thinking": false }
+            "chat_template_kwargs": {
+              "enable_thinking": false
+            }
           },
           "variants": {
-            "none":   { "chat_template_kwargs": { "enable_thinking": false } },
-            "low":    { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "low" } },
-            "medium": { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "medium" } },
-            "high":   { "chat_template_kwargs": { "enable_thinking": true, "reasoning_effort": "xhigh" } }
+            "none": {
+              "chat_template_kwargs": {
+                "enable_thinking": false
+              }
+            },
+            "low": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "low"
+              }
+            },
+            "medium": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "medium"
+              }
+            },
+            "high": {
+              "chat_template_kwargs": {
+                "enable_thinking": true,
+                "reasoning_effort": "xhigh"
+              }
+            }
           }
         }
       }
     }
   },
-  "plugin": ["opencode-plugin-openspec", "./.opencode/plugins/rtk.ts", "./.opencode/plugins/scratch.ts", "./.opencode/plugins/session-affinity.ts"],
+  "plugin": [
+    "opencode-plugin-openspec",
+    "./.opencode/plugins/rtk.ts",
+    "./.opencode/plugins/scratch.ts",
+    "./.opencode/plugins/session-affinity.ts"
+  ],
   "mcp": {
     "idea": {
       "type": "remote",
-      "url": "http://127.0.0.1:64564/sse",
-      "headers": {},
+      "url": "http://127.0.0.1:65237/sse",
       "enabled": true
     },
-    // Web/mobile UI tooling — scoped to ui-impl-worker + ui-reviewer only.
-    // The server processes still spawn at startup (MCP has no per-agent enable),
-    // but the *tools* are hidden globally via the `tools` glob and re-enabled
-    // per agent, so only those two agents can invoke them. See "tools" block.
     "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--headless", "--no-usage-statistics", "--no-performance-crux"],
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--headless",
+        "--no-usage-statistics",
+        "--no-performance-crux"
+      ],
       "enabled": true,
       "timeout": 30000
     },
     "playwright": {
       "type": "local",
-      "command": ["npx", "-y", "@playwright/mcp@latest", "--headless", "--caps", "vision,devtools"],
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest",
+        "--headless",
+        "--caps",
+        "vision,devtools"
+      ],
       "enabled": true,
       "timeout": 30000
     }
   },
-  // Globally hide the UI browser MCP tools from every agent. They are
-  // re-enabled ONLY for ui-impl-worker and ui-reviewer in their "tools" blocks.
-  // MCP tool names are prefixed with the server name (e.g. chrome-devtools_navigate_page).
   "tools": {
     "chrome-devtools*": false,
     "playwright*": false
   },
   "agent": {
-    // Primary agent — full tool access
     "build": {
       "description": "Main development agent with full tool access",
       "model": "litellm/agentic"
     },
-    // Planning agent — read-only, asks before editing
     "plan": {
       "description": "Planning agent - analyzes and suggests without making changes",
       "model": "litellm/generalist",
@@ -140,7 +257,6 @@
         "bash": "ask"
       }
     },
-    // General-purpose subagent for multi-step tasks
     "general": {
       "description": "General-purpose agent for multi-step tasks",
       "mode": "subagent",
@@ -157,7 +273,6 @@
         }
       }
     },
-    // Read-only exploration subagent
     "explore": {
       "description": "Fast exploration agent - read-only code analysis",
       "mode": "subagent",
@@ -178,7 +293,6 @@
         }
       }
     },
-    // Cheap exploration subagent — local-fast, read-only, spawned by impl-worker/ui-impl-worker instead of the remote `explore`
     "explore-cheap": {
       "description": "Cheap exploration agent - local-fast read-only code analysis, spawned by orchestrators",
       "mode": "subagent",
@@ -201,7 +315,6 @@
         }
       }
     },
-    // Code quality review subagent
     "code-reviewer": {
       "description": "Code review agent - analyzes code quality and suggests improvements",
       "mode": "subagent",
@@ -230,9 +343,6 @@
         }
       }
     },
-    // UI implementation worker — web (React) + mobile (Expo/React Native).
-    // Owns browser MCP tools (chrome-devtools + playwright) for live UI work.
-    // Spawns ui-reviewer to audit its own output before reporting done.
     "ui-impl-worker": {
       "description": "Web/mobile UI implementation worker - React web + Expo/React Native, drives real browsers to build and verify UI",
       "mode": "subagent",
@@ -241,7 +351,6 @@
       "variant": "low",
       "temperature": 0.2,
       "prompt": "{file:./.opencode/prompts/ui-impl-worker-instructions.md}",
-      // Browser MCPs re-enabled here (hidden globally via top-level "tools").
       "tools": {
         "chrome-devtools*": true,
         "playwright*": true
@@ -271,15 +380,14 @@
         }
       }
     },
-    // Cheap UI implementation worker — local-fast (no thinking), executes single UI chunks under ui-impl-worker supervision
     "ui-impl-worker-cheap": {
       "description": "Cheap UI implementation worker - executes single atomic UI chunks under supervision",
       "mode": "subagent",
       "hidden": true,
-      "steps": 75,
+      "steps": 150,
       "model": "litellm/local-fast",
       "variant": "none",
-      "temperature": 0.3,
+      "temperature": 0.2,
       "prompt": "{file:./.opencode/prompts/ui-impl-worker-cheap-instructions.md}",
       "tools": {
         "chrome-devtools*": true,
@@ -301,8 +409,6 @@
         }
       }
     },
-    // UI/UX reviewer — audits UI/UX quality. Read-only on code, but has browser
-    // MCPs to take screenshots and inspect the live app. Spawned by ui-impl-worker.
     "ui-reviewer": {
       "description": "UI/UX reviewer - audits visual design, accessibility, and responsive behavior of web/mobile UI",
       "mode": "subagent",
@@ -331,7 +437,6 @@
         }
       }
     },
-    // Documentation writer subagent
     "docs-writer": {
       "description": "Documentation writer agent - generates and maintains docs",
       "mode": "subagent",
@@ -355,7 +460,6 @@
         }
       }
     },
-    // System architect subagent
     "architect": {
       "description": "System architect - designs boundaries, interfaces, and codebase structure",
       "mode": "subagent",
@@ -385,7 +489,6 @@
         }
       }
     },
-    // Local-model fallback for architect — same prompt, used when `architect` (litellm/design) is rate-limited
     "architect-cheap": {
       "description": "Local-model architect fallback - same prompt as architect, used when architect is rate-limited",
       "mode": "subagent",
@@ -417,7 +520,6 @@
         }
       }
     },
-    // Root-cause debugger subagent
     "debugger": {
       "description": "Root cause analyst - isolates and fixes bugs",
       "mode": "subagent",
@@ -442,7 +544,6 @@
         }
       }
     },
-    // Web researcher — external research via web search/fetch, hardened against prompt injection
     "websearcher": {
       "description": "Web researcher - external research via web search/fetch, hardened against prompt injection",
       "mode": "subagent",
@@ -463,7 +564,6 @@
         }
       }
     },
-    // Implementation orchestrator — local-quality (no thinking), delegates to explore-cheap + impl-worker-cheap + review-cheap, audits results
     "impl-worker": {
       "description": "Implementation orchestrator - delegates to cheap workers, audits results, only implements one-liners directly",
       "mode": "subagent",
@@ -498,7 +598,6 @@
         }
       }
     },
-    // Cheap implementation worker — local-fast (no thinking), executes single atomic tasks under impl-worker supervision
     "impl-worker-cheap": {
       "description": "Cheap implementation worker - executes single atomic tasks under supervision",
       "mode": "subagent",
@@ -522,7 +621,6 @@
         }
       }
     },
-    // Detail designer — turns specs into design.md + atomic task list with file ownership
     "designer": {
       "description": "Detail designer - turns specs into design decisions and an atomic task list",
       "mode": "subagent",
@@ -550,9 +648,6 @@
         }
       }
     },
-    // Independent review gate — reviews spec, subspec, and code against loaded standards.
-    // Loads different standards files based on the target (spec/subspec/code).
-    // Runs in a fresh context (LPM-004). Never edits — reports findings only.
     "reviewer": {
       "description": "Independent review gate - reviews spec/subspec/code against standards, reports findings by severity",
       "mode": "subagent",
@@ -588,7 +683,6 @@
         }
       }
     },
-    // Cheap review subagent — local-fast, read-only code review, spawned by impl-worker instead of the remote `reviewer`
     "review-cheap": {
       "description": "Cheap review agent - local-fast code review, spawned by impl-worker",
       "mode": "subagent",
@@ -624,7 +718,6 @@
         }
       }
     },
-    // Orchestrator agent — local-fast (medium reasoning), drives the lifecycle state machine, never implements
     "autopilot": {
       "description": "Orchestrator agent - drives the OpenSpec lifecycle state machine, delegates every phase, never implements",
       "model": "litellm/local-fast",
@@ -656,46 +749,44 @@
   },
   "default_agent": "plan",
   "subagent_depth": 3,
-  // Common permissions — apply to ALL agents unless overridden per agent
-   "permission": {
-     "edit": "allow",
-     "question": "allow",
-     "external_directory": "allow",
-     // .tmp scratch space — writable by every agent/subagent, even those that
-     // narrow their own edit/write permission. Covers write + edit + patch to .tmp/**.
-     "write": {
-       ".tmp/**": "allow"
-     },
-     "bash": {
-       "*": "allow",
-       "git push*": "ask",
-       "rtk git push*": "ask",
-       "git push --force*": "deny",
-       "git push -f*": "deny",
-       "rtk git push --force*": "deny",
-       "rtk git push -f*": "deny",
-       "git reset --hard*": "deny",
-       "rtk git reset --hard*": "deny",
-       "git clean *": "deny",
-       "rtk git clean *": "deny",
-       "git clean -n*": "allow",
-       "rtk git clean -n*": "allow",
-       "git checkout .": "deny",
-       "git checkout --*": "deny",
-       "git checkout -f*": "deny",
-       "git restore .": "deny",
-       "git restore --*": "deny",
-       "rtk git checkout .": "deny",
-       "rtk git checkout --*": "deny",
-       "rtk git checkout -f*": "deny",
-       "rtk git restore .": "deny",
-       "rtk git restore --*": "deny",
-       "git branch -D*": "deny",
-       "rtk git branch -D*": "deny",
-       "git stash drop*": "deny",
-       "git stash clear*": "deny",
-       "rtk git stash drop*": "deny",
-       "rtk git stash clear*": "deny"
-     }
-   }
+  "lsp": true,
+  "permission": {
+    "edit": "allow",
+    "question": "allow",
+    "external_directory": "allow",
+    "write": {
+      ".tmp/**": "allow"
+    },
+    "bash": {
+      "*": "allow",
+      "git push*": "ask",
+      "rtk git push*": "ask",
+      "git push --force*": "deny",
+      "git push -f*": "deny",
+      "rtk git push --force*": "deny",
+      "rtk git push -f*": "deny",
+      "git reset --hard*": "deny",
+      "rtk git reset --hard*": "deny",
+      "git clean *": "deny",
+      "rtk git clean *": "deny",
+      "git clean -n*": "allow",
+      "rtk git clean -n*": "allow",
+      "git checkout .": "deny",
+      "git checkout --*": "deny",
+      "git checkout -f*": "deny",
+      "git restore .": "deny",
+      "git restore --*": "deny",
+      "rtk git checkout .": "deny",
+      "rtk git checkout --*": "deny",
+      "rtk git checkout -f*": "deny",
+      "rtk git restore .": "deny",
+      "rtk git restore --*": "deny",
+      "git branch -D*": "deny",
+      "rtk git branch -D*": "deny",
+      "git stash drop*": "deny",
+      "git stash clear*": "deny",
+      "rtk git stash drop*": "deny",
+      "rtk git stash clear*": "deny"
+    }
+  }
 }
