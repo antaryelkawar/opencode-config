@@ -10,6 +10,7 @@
   ],
   "provider": {
     "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "http://192.168.1.103:4000/v1",
         "apiKey": "sk-litellm-master-key",
@@ -201,12 +202,8 @@
       }
     }
   },
-  "plugin": [
-    "opencode-plugin-openspec",
-    "./.opencode/plugins/rtk.ts",
-    "./.opencode/plugins/scratch.ts",
-    "./.opencode/plugins/session-affinity.ts"
-  ],
+  // Local plugins are auto-discovered from .opencode/plugins/<id>/index.ts in V2.
+  // opencode-plugin-openspec was V1-only (no V2 release); removed with the V2 plugin API migration.
   "mcp": {
     "idea": {
       "type": "remote",
